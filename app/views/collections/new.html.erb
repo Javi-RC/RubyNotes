@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      
+      <ul class="navbar-nav ms-auto nav-text"> 
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<%= form_with(model: Collection.new, local: true) do |form| %>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <div class="card collection-form">
+          <h1 class="text-center nav-text">
+            <i class="fas fa-edit"></i> Create Collection
+          </h1>
+          <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+          <div class="card-body">
+            <div class="field">
+              <%= form.text_field :title, class: "form-control", placeholder: "Enter title" %>
+            </div>
+            <div class="field">
+              <br>
+              <label>Select notes to add:</label>
+              <br>
+              <br>
+              <% if @notes.any? %>
+                <% @notes.each do |note| %>
+                  <div class="form-check">
+                    <%= check_box_tag "collection[note_ids][]", note.id, false, class: "form-check-input" %>
+                    <%= label_tag "collection_note_#{note.id}", raw(note.title), class: "form-check-label" %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p>You don't have any notes!</p>
+              <% end %>
+            </div>
+            <div class="actions text-center mt-3">
+              <%= form.submit 'Create Collection 📦', class: "btn btn-success btn-block nav-text" %>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <%= link_to (request.referer || root_path), class: 'back-button text-center' do %>
+            <i class="fas fa-arrow-left"></i> Back
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

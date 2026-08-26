@@ -1,0 +1,107 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto"> 
+        <li class="nav-item nav-text">
+           <li class="nav-item nav-text">
+          <%= link_to new_collection_path, class: 'nav-link btn btn-outline-success' do %>
+            <i class="fas fa-plus"></i> New Collection
+          <% end %>
+        </li>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto nav-text"> 
+       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" width="60" height="60"  class="navbar-brand nav-text">
+       <li class="nav-item">
+        <a class="nav-link" href="/show_profile/<%=  User.find_by(name: session[:user]).id %>" >
+          <%= session[:user] %>
+        </a>
+      </li>
+        <a class="navbar-brand nav-text" href="/notifications">
+          <i class="fa-regular fa-bell"></i>
+          <% if @notifications.any? %>
+            <span class="badge bg-danger"><%= @notifications.count %></span>
+          <% end %>
+        </a>
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<% if @collections.any? %>
+  <div class="container mt-5">
+    <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+    <form class="d-flex mb-2">
+      <input id="collection-search-input" class="form-control me-2" type="search" placeholder="Search by title" aria-label="Search">
+    </form>
+    <div class="row">
+      <% @collections.each do |collection| %>
+        <div class="col-md-4 mb-4 collection">
+          <div class="card bg-color-card">
+            <div class="card-body">
+              <h5 class="card-title"><%= collection.title %></h5>
+              <hr class="my-4 border border-dark">
+              <div class="card-text collection-notes">
+                <% if collection.notes.any? %>
+                  <% collection.notes.each do |note| %>
+                    <p><%= truncate(raw(note.title), length: 50) %></p>
+                  <% end %>
+                <% else %>
+                  <p>No notes in this collection yet.</p>
+                <% end %>
+              </div>
+            </div>
+            <div class="card-footer d-flex align-items-center gap-2">
+              <%= link_to collection, class: 'btn btn-primary mr-2' do %>
+                <i class="fas fa-eye"></i> Show
+              <% end %>
+              <%= link_to edit_collection_path(collection), class: 'btn btn-secondary mr-2' do %>
+                <i class="fas fa-edit"></i> Edit
+              <% end %>
+              <%= button_to collection_path(collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+                <i class="fas fa-trash-alt"></i> Delete
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="container text-center mt-5">
+    <p style="font-size: 48px;"><i class="far fa-frown"></i> You don't have any collections! <i class="far fa-frown"></i></p>
+    <hr class="border border-dark mt-5" style="height: 8px; background-color: black; margin-bottom: 3rem">
+    <%= link_to new_collection_path, class: 'btn btn-success btn-lg' do %>
+      <i class="fas fa-box"></i> Create your first collection!
+    <% end %>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('collection-search-input');
+    const collections = document.querySelectorAll('.collection');
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.trim().toLowerCase();
+
+      collections.forEach(function(collection) {
+        const collectionTitle = collection.querySelector('.card-title').textContent.trim().toLowerCase();
+        if (collectionTitle.includes(searchTerm)) {
+          collection.style.display = 'block';
+        } else {
+          collection.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

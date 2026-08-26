@@ -1,0 +1,96 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+    <a class="navbar-brand nav-text" href="/home">Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto"> 
+              <li class="nav-item nav-text">
+                <li class="nav-item nav-text">
+                <%= link_to new_friend_path, class: 'nav-link btn btn-outline-success' do %>
+                  <i class="fas fa-plus"></i> Add Friend
+                <% end %>
+              </li>
+            </li>
+        </ul>
+      <ul class="navbar-nav ms-auto nav-text"> 
+       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" width="60" height="60"  class="navbar-brand nav-text">
+       <li class="nav-item">
+        <a class="nav-link" href="/show_profile/<%=  User.find_by(name: session[:user]).id %>" >
+          <%= session[:user] %>
+        </a>
+      </li>
+        <a class="navbar-brand nav-text" href="/notifications">
+          <i class="fa-regular fa-bell"></i>
+          <% if @notifications.any? %>
+            <span class="badge bg-danger"><%= @notifications.count %></span>
+          <% end %>
+        </a>
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+<% if @friends.any? %>
+<div class="container mt-5">
+  <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+  <form class="d-flex mb-2">
+    <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+  </form>
+  <div class="row" id="friends-list">
+    <% @friends.each do |friend| %>
+      <div class="col-md-4 mb-4 friend">
+        <div class="card bg-color-card">
+          <div class="card-body">
+            <h5 class="card-title"><%= friend.name %></h5>
+          </div>
+          <div class="card-footer d-flex align-items-center gap-2">
+            <%= link_to 'See Friend', see_friend_path(friend), class: 'btn btn-success mr-2' %>
+            <%= button_to 'Remove Friend', remove_friend_path(friend), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger', remote: true %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% else %>
+<div class="container text-center mt-5">
+  <p style="font-size: 48px;"><i class="far fa-frown"></i> You have no friends <i class="far fa-frown"></i></p>
+</div>
+<% end %>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const friendsList = document.getElementById('friends-list');
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.trim().toLowerCase();
+      const exactMatches = [];
+      const partialMatches = [];
+
+      Array.from(friendsList.children).forEach(function(friend) {
+        const friendName = friend.querySelector('.card-title').textContent.trim().toLowerCase();
+        if (friendName === searchTerm) {
+          exactMatches.push(friend);
+        } else if (friendName.includes(searchTerm)) {
+          partialMatches.push(friend);
+        }
+      });
+
+      friendsList.innerHTML = '';
+      exactMatches.forEach(function(friend) {
+        friendsList.appendChild(friend);
+      });
+      partialMatches.forEach(function(friend) {
+        friendsList.appendChild(friend);
+      });
+    });
+  });
+</script>

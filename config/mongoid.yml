@@ -1,0 +1,4 @@
+development:
+  clients:
+    default:
+      uri: mongodb+srv://WebSistemsLab:volsNjj8la3iGJu0@cluster0.hsshrxc.mongodb.net/NoteBranch?retryWrites=true&w=majority&appName=Cluster0"

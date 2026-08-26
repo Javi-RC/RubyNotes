@@ -1,0 +1,118 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto"> 
+        <li class="nav-item nav-text">
+           <li class="nav-item nav-text">
+          <%= link_to new_note_path, class: 'nav-link btn btn-outline-success' do %>
+            <i class="fas fa-plus"></i> New Note
+          <% end %>
+        </li>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto nav-text"> 
+       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" width="60" height="60"  class="navbar-brand nav-text">
+       <li class="nav-item">
+        <a class="nav-link" href="/show_profile/<%=  User.find_by(name: session[:user]).id %>" >
+          <%= session[:user] %>
+        </a>
+      </li>
+        <a class="navbar-brand nav-text" href="/notifications">
+          <i class="fa-regular fa-bell"></i>
+          <% if @notifications.any? %>
+            <span class="badge bg-danger"><%= @notifications.count %></span>
+          <% end %>
+        </a>
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<% if @notes.any? %>
+<div class="container mt-5">
+  <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+  <form class="d-flex mb-2">
+    <input id="note-search-input" class="form-control me-2" type="search" placeholder="Search by title" aria-label="Search">
+  </form>
+  <div class="row" id="notes-list">
+    <% @notes.each do |note| %>
+      <div class="col-md-4 mb-4 note">
+        <div class="card bg-color-card">
+          <div class="card-body">
+            <h5 class="card-title"><%= note.title %></h5>
+            <hr class="my-4 border border-dark">
+            <div class="card-text note-content">
+              <% if note.content.present? %>
+                <div style="max-width: 500px; max-height: 500px; overflow: auto;">
+                  <%= raw(note.content.html_safe) %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="card-footer d-flex align-items-center gap-2">
+            <%= link_to note, class: 'btn btn-primary mr-2' do %>
+              <i class="fas fa-eye"></i> Show
+            <% end %>
+            <%= link_to edit_note_path(note), class: 'btn btn-secondary' do %>
+              <i class="fas fa-edit"></i> Edit
+            <% end %>
+            <%= link_to edit_note_path(note), class: 'btn btn-primary mr-2' do %>
+              <i class="fas fa-plus"></i> Add to Collection
+            <% end %>
+            <%= button_to note_path(note), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+              <i class="fas fa-trash-alt"></i> Delete
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% else %>
+<div class="container text-center mt-5">
+  <p style="font-size: 48px;"><i class="far fa-frown"></i> You don't have any notes! <i class="far fa-frown"></i></p>
+  <hr class="border border-dark mt-5" style="height: 8px; background-color: black; margin-bottom: 3rem">
+  <%= link_to new_note_path, class: 'btn btn-success btn-lg' do %>
+    <i class="fas fa-pencil-alt"></i> Start now!
+  <% end %>
+</div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('note-search-input');
+    const notesList = document.getElementById('notes-list');
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.trim().toLowerCase();
+      const exactMatches = [];
+      const partialMatches = [];
+
+      Array.from(notesList.children).forEach(function(note) {
+        const noteTitle = note.querySelector('.card-title').textContent.trim().toLowerCase();
+        if (noteTitle === searchTerm) {
+          exactMatches.push(note);
+        } else if (noteTitle.includes(searchTerm)) {
+          partialMatches.push(note);
+        }
+      });
+
+      notesList.innerHTML = '';
+      exactMatches.forEach(function(note) {
+        notesList.appendChild(note);
+      });
+      partialMatches.forEach(function(note) {
+        notesList.appendChild(note);
+      });
+    });
+  });
+</script>

@@ -1,0 +1,74 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto"> 
+        <li class="nav-item nav-text">
+           <li class="nav-item nav-text">
+          <%= link_to new_note_path, class: 'nav-link btn btn-outline-success' do %>
+            <i class="fas fa-plus"></i> New Note
+          <% end %>
+        </li>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto nav-text"> 
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Note Details</h5>
+    </div>
+    <div class="card-body">
+      <div class="field">
+       <h5>Title: <%= @note.title %></h5>
+
+      <br>
+      <div class="card-text">
+        <% if @note.content.present? %>
+          <%= @note.content.html_safe %>
+      <% end %>
+      </div>
+        <br>
+       <% if @note.collections.any? %> 
+          <h6>Collections:</h6>
+            <ul>
+              <% @note.collections.each do |collection| %>
+                <li><%= link_to raw(collection.title), collection_path(collection) %></li>
+              <% end %>
+            </ul>
+        <% else %>
+          <p>This note is not in a collection yet!</p>
+        <% end %>
+
+    
+    </div>
+     
+  </div>
+  
+      
+  <div class="card-footer d-flex align-items-center gap-2">
+    <%= link_to (request.referer || root_path), class: 'back-button my-2' do %> 
+      <i class="fas fa-arrow-left"></i> Back
+    <% end %>
+    <%= link_to edit_note_path(@note), class: 'btn btn-secondary' do %>
+      <i class="fas fa-edit"></i> Edit
+    <% end %>
+    <%= link_to edit_note_path(@note), class: 'btn btn-primary mr-2' do %>
+      <i class="fas fa-plus"></i> Add to Collection
+    <% end %>
+    <%= button_to note_path(@note), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+      <i class="fas fa-trash-alt"></i> Delete
+    <% end %>
+  </div>
+</div>

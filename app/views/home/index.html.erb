@@ -1,0 +1,116 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+    <a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto nav-text"> 
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" width="60" height="60"  class="navbar-brand nav-text">
+       <li class="nav-item">
+        <a class="nav-link" href="/show_profile/<%=  User.find_by(name: session[:user]).id %>" >
+          <%= session[:user] %>
+        </a>
+      </li>
+        <a class="navbar-brand nav-text" href="/notifications">
+        <div id="notifications">
+          <% if @notifications.any? %>
+            <i class="fa-regular fa-bell"></i>
+            <span class="badge bg-danger"><%= @notifications.count %></span>
+          <% end %>
+        </div>
+        </a>
+        
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <% if session[:user].present? %>
+    <h2>Welcome <%= User.find_by(name: session[:user]).name %></h2>
+      <% if User.find_by(name: session[:user]).role === 'admin' %>
+        <h2 class ="mb-4"> Admin Board 📋 </h2>
+        <div class="col-md-4">
+          <div class="card text-center bg-color-card shadow mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Users</h5>
+              <p class="card-text"><i class="fas fa-users fa-5x"></i></p>
+              <%= link_to "See All Users", users_path, class: 'btn btn-primary' %>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center bg-color-card shadow mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Notes</h5>
+              <p class="card-text"><i class="fas fa-sticky-note fa-5x"></i></p>
+              <%= link_to "See All Notes", notes_path, class: 'btn btn-primary' %>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center bg-color-card shadow mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Collections</h5>
+              <p class="card-text"><i class="fas fa-box fa-5x"></i></p>
+              <%= link_to "See All Collections", collections_path, class: 'btn btn-primary' %>
+            </div>
+          </div>
+        </div>
+        <hr class="border border-dark mt-4" style="height: 8px; background-color: black; margin-top: 4rem;">
+      <% end %>
+      <h2 class ="mb-4"> User Board 📚 </h2>
+      <div class="col-md-4">
+        <div class="card text-center bg-color-card shadow mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Notes</h5>
+            <p class="card-text"><i class="fas fa-sticky-note fa-5x"></i></p>
+            <%= link_to "See Notes", '/notes_owned', class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center bg-color-card shadow mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Collections</h5>
+            <p class="card-text"><i class="fas fa-box fa-5x"></i></p>
+            <%= link_to "See Collections", '/collections_owned', class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+      <div class="container mt-5">
+        <div class="row justify-content-center">
+          <div class="col-md-4">
+            <div class="card text-center bg-color-card shadow mb-4">
+              <div class="card-body">
+                <h5 class="card-title">Friends</h5>
+                <p class="card-text"><i class="fa-solid fa-user-group fa-5x"></i></p>
+                <%= link_to "See Friends", friends_path , class: 'btn btn-primary' %>
+              </div>
+            </div>
+          </div>
+          <% if session[:user].present? %>
+            <div class="col-md-4">
+              <div class="card text-center bg-color-card shadow mb-4">
+                <div class="card-body">
+                  <h5 class="card-title">Delete Account</h5>
+                  <p class="card-text"><i class="fas fa-user-times fa-5x"></i></p>
+                  <%= button_to user_path(@user), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+                    <i class="fas fa-trash-alt"></i> Delete
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

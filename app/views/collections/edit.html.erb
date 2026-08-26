@@ -1,0 +1,97 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
+  <div class="container">
+<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto"> 
+        <li class="nav-item nav-text">
+           <li class="nav-item nav-text">
+          <%= link_to new_collection_path, class: 'nav-link btn btn-outline-success' do %>
+            <i class="fas fa-plus"></i> New Collection
+          <% end %>
+        </li>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto nav-text"> 
+        <%= form_tag '/logout', method: :delete do %>
+          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
+            <i class="fa-solid fa-right-from-bracket"></i> LogOut
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<br>
+
+<%= form_for(@collection, url: collection_path(@collection), method: :patch, local: true) do |form| %>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <div class="card collection-form">
+          <h1 class="text-center nav-text mt-4">
+            <i class="fas fa-edit"></i> Edit Collection
+          </h1>
+          <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+          <div class="card-body">
+            <div class="field">
+              <label>Tittle:</label>
+              <%= form.text_field :title, class: "form-control", placeholder: "Enter title" %>
+            </div>
+            <div class="field">
+              <br>
+              <label>Select notes for the collection:</label>
+              <br>
+              <br>
+              <% if @notes.any? || @collection_notes.any? %>
+                <% @notes.each do |note| %>
+                  <div class="form-check">
+                    <%= check_box_tag "collection[note_ids][]", note.id, @collection.notes.include?(note), class: "form-check-input" %>
+                    <%= label_tag "collection_note_#{note.id}", raw(note.title), class: "form-check-label" %>
+                  </div>
+                <% end %>
+                <% @collection_notes.each do |note| %>
+                  <div class="form-check">
+                    <%= check_box_tag "collection[note_ids][]", note.id, @collection.notes.include?(note), class: "form-check-input" %>
+                    <%= label_tag "collection_note_#{note.id}", raw(note.title), class: "form-check-label" %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p>You don't have any notes!</p>
+              <% end %>
+               <br>
+                <% if User.find_by(name: session[:user]) == @collection.user %>
+
+    <label>Share with:</label>
+    
+    <br>
+    <% if @friends.any? %>
+      <% @friends.each do |friend| %>
+        <div class="form-check">
+          <%= check_box_tag "collection[share_ids][]", friend.id, @collection.shares.include?(friend)   , class: "form-check-input" %>
+          <%= label_tag "note_friend_#{friend.id}", raw(friend.name), class: "form-check-label" %>
+        </div>
+      <% end %>
+    <% else %>
+      <p>You don't have any friends!</p>
+    <% end %>
+    <%end%>
+    
+            </div>
+            <div class="actions text-center mt-3">
+              <%= form.submit 'Update Collection 🖋', class: "btn btn-success btn-block nav-text" %>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <%= link_to request.referer, class: 'back-button text-center' do %>
+            <i class="fas fa-arrow-left"></i> Back
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
