@@ -2,6 +2,7 @@
 /.env*
 !/.env*.erb
 !/log/.keep
+/log/development.log
 !/tmp/.keep
 !/tmp/pids/.keep
 !/tmp/storage/.keep
