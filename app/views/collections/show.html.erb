@@ -1,29 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
-  <div class="container">
-<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto"> 
-        <li class="nav-item nav-text">
-           <li class="nav-item nav-text">
-          <%= link_to new_collection_path, class: 'nav-link btn btn-outline-success' do %>
-            <i class="fas fa-plus"></i> New Collection
-          <% end %>
-        </li>
-        </li>
-      </ul>
-      <ul class="navbar-nav ms-auto nav-text"> 
-        <%= form_tag '/logout', method: :delete do %>
-          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
-            <i class="fa-solid fa-right-from-bracket"></i> LogOut
-          <% end %>
-        <% end %>
-      </ul>
-    </div>
-  </div>
-</nav>
+<%= render 'layouts/navbar' %>
 
 <div class="container mt-5">
   <div class="card shadow-sm">
@@ -34,28 +9,28 @@
       <div class="card-text">
         <h5>Title: <%= @collection.title %></h5>
         <hr>
-        <% if @collection.notes.any? %> 
+        <% if @collection.notes.any? %>
           <h6>Notes:</h6>
-            <ul>
-              <% @collection.notes.each do |note| %>
-                <li><%= link_to raw(note.title), note_path(note) %></li>
-              <% end %>
-            </ul>
+          <ul>
+            <% @collection.notes.each do |note| %>
+              <li><%= link_to sanitize(note.title), note_path(note) %></li>
+            <% end %>
+          </ul>
         <% else %>
           <p>No notes in this collection yet.</p>
         <% end %>
       </div>
     </div>
     <div class="card-footer d-flex align-items-center gap-2">
-        <%= link_to request.referer || root_path, class: 'back-button my-2' do %>
-          <i class="fas fa-arrow-left"></i> Back
-        <% end %>
-        <%= link_to edit_collection_path(@collection), class: 'btn btn-secondary' do %>
-          <i class="fas fa-edit"></i> Edit
-        <% end %>
-        <%= button_to collection_path(@collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-          <i class="fas fa-trash-alt"></i> Delete
-        <% end %>
+      <%= link_to request.referer || root_path, class: 'back-button my-2' do %>
+        <i class="fas fa-arrow-left"></i> Back
+      <% end %>
+      <%= link_to edit_collection_path(@collection), class: 'btn btn-secondary' do %>
+        <i class="fas fa-edit"></i> Edit
+      <% end %>
+      <%= button_to collection_path(@collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
+        <i class="fas fa-trash-alt"></i> Delete
+      <% end %>
     </div>
   </div>
 </div>

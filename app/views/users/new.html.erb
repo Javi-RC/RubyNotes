@@ -1,25 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0; margin-bottom: 5rem;">
-  <div class="container">
-    <% if not session[:user].present? %>
-    <a class="navbar-brand nav-text" href="/"><i class="fas fa-home"></i> Welcome Page!</a>
-    <% else %>
-    <a class="navbar-brand nav-text" href="/users"><i class="fas fa-users"></i> Users List!</a>
-    <% end %>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <% if not session[:user].present? %>
-    <% else %>
-    <ul class="navbar-nav ms-auto nav-text"> 
-        <%= form_tag '/logout', method: :delete do %>
-          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
-            <i class="fa-solid fa-right-from-bracket"></i> LogOut
-          <% end %>
-        <% end %>
-      </ul>
-      <% end %>
-  </div>
-</nav>
+<% if current_user %>
+  <%= render 'layouts/navbar' %>
+<% else %>
+  <nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0; margin-bottom: 5rem;">
+    <div class="container">
+      <a class="navbar-brand nav-text" href="<%= root_path %>"><i class="fas fa-home"></i> Welcome Page!</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+<% end %>
 
 <div class="container mt-4">
   <div class="row justify-content-center">
@@ -51,23 +41,23 @@
                 <%= form.label :password_confirmation %>
                 <%= form.password_field :password_confirmation, class: "form-control", required: true %>
               </div>
-              <% if session[:user].present? && User.find_by(name: session[:user]).role === 'admin' %>
+              <% if current_user&.role === 'admin' %>
                 <div class="form-group">
                   <%= form.label :role %>
                   <%= form.select :role, options_for_select([['User', 'user'], ['Admin', 'admin']], 'user'), { prompt: 'Select Role' }, class: 'form-control' %>
                 </div>
               <% end %>
               <div class="text-center">
-                <% if session[:user].present? %>
+                <% if current_user %>
                   <%= form.submit "Create User!", class: "btn btn-primary btn-block mt-4" %>
                 <% else %>
                   <%= form.submit "Register", class: "btn btn-primary btn-block mt-4" %>
                 <% end %>
               </div>
             <% end %>
-            <% unless session[:user].present? %>
+            <% unless current_user %>
               <div class="text-center mt-3">
-                <p>Do you have an account? 👇</p> 
+                <p>Do you have an account? 👇</p>
                 <%= link_to "Log in", new_session_path %>
               </div>
             <% end %>

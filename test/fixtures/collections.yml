@@ -1,11 +1,7 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  name: MyString
+  title: My Collection
   user: one
-  note: one
 
 two:
-  name: MyString
+  title: Another Collection
   user: two
-  note: two

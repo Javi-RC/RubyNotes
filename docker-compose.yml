@@ -1,0 +1,23 @@
+app:
+  build: .
+  ports:
+    - "3000:3000"
+  environment:
+    - RAILS_ENV=development
+    - MONGODB_URI=mongodb://mongodb:27017/NoteBranch
+  depends_on:
+    - mongodb
+  volumes:
+    - .:/rails
+    - bundle_cache:/usr/local/bundle
+
+mongodb:
+  image: mongo:7
+  ports:
+    - "27017:27017"
+  volumes:
+    - mongodb_data:/data/db
+
+volumes:
+  bundle_cache:
+  mongodb_data:

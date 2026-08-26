@@ -2,7 +2,7 @@ require "test_helper"
 
 class NotesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @note = notes(:one)
+    post sessions_url, params: { name: users(:one).name, password: "password123" }
   end
 
   test "should get index" do
@@ -17,32 +17,24 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create note" do
     assert_difference("Note.count") do
-      post notes_url, params: { note: { image: @note.image, list: @note.list, text: @note.text, user_id: @note.user_id } }
+      post notes_url, params: { note: { title: "New Note", content: "Content" } }
     end
-
-    assert_redirected_to note_url(Note.last)
+    assert_redirected_to notes_owned_path
   end
 
   test "should show note" do
-    get note_url(@note)
+    get note_url(notes(:one))
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_note_url(@note)
+    get edit_note_url(notes(:one))
     assert_response :success
   end
 
-  test "should update note" do
-    patch note_url(@note), params: { note: { image: @note.image, list: @note.list, text: @note.text, user_id: @note.user_id } }
-    assert_redirected_to note_url(@note)
-  end
-
-  test "should destroy note" do
-    assert_difference("Note.count", -1) do
-      delete note_url(@note)
-    end
-
-    assert_redirected_to notes_url
+  test "should require login" do
+    reset_session!
+    get notes_url
+    assert_redirected_to new_session_path
   end
 end

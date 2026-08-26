@@ -1,21 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0;">
-  <div class="container">
-<a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      
-      <ul class="navbar-nav ms-auto nav-text"> 
-        <%= form_tag '/logout', method: :delete do %>
-          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
-            <i class="fa-solid fa-right-from-bracket"></i> LogOut
-          <% end %>
-        <% end %>
-      </ul>
-    </div>
-  </div>
-</nav>
+<%= render 'layouts/navbar' %>
 
 <%= form_with(model: Collection.new, local: true) do |form| %>
   <div class="container mt-5">
@@ -39,7 +22,7 @@
                 <% @notes.each do |note| %>
                   <div class="form-check">
                     <%= check_box_tag "collection[note_ids][]", note.id, false, class: "form-check-input" %>
-                    <%= label_tag "collection_note_#{note.id}", raw(note.title), class: "form-check-label" %>
+                    <%= label_tag "collection_note_#{note.id}", sanitize(note.title), class: "form-check-label" %>
                   </div>
                 <% end %>
               <% else %>

@@ -1,13 +1,16 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  type: 
-  status: MyString
-  message: MyString
+friend_request:
+  notification_type: friend_request
+  status: pending
+  message: Friend request
+  sender: one
+  receiver: two
   user: one
 
-two:
-  type: 
-  status: MyString
-  message: MyString
-  user: two
+note_share:
+  notification_type: note_share
+  status: pending
+  message: Note share
+  sender: one
+  receiver: two
+  share: one
+  user: one

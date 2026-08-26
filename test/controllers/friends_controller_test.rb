@@ -2,7 +2,7 @@ require "test_helper"
 
 class FriendsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @friend = friends(:one)
+    post sessions_url, params: { name: users(:one).name, password: "password123" }
   end
 
   test "should get index" do
@@ -15,34 +15,16 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create friend" do
-    assert_difference("Friend.count") do
-      post friends_url, params: { friend: { user_id: @friend.user_id } }
+  test "should send friend request" do
+    assert_difference("Notification.count") do
+      post send_request_path(users(:two))
     end
-
-    assert_redirected_to friend_url(Friend.last)
+    assert_redirected_to home_path
   end
 
-  test "should show friend" do
-    get friend_url(@friend)
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get edit_friend_url(@friend)
-    assert_response :success
-  end
-
-  test "should update friend" do
-    patch friend_url(@friend), params: { friend: { user_id: @friend.user_id } }
-    assert_redirected_to friend_url(@friend)
-  end
-
-  test "should destroy friend" do
-    assert_difference("Friend.count", -1) do
-      delete friend_url(@friend)
-    end
-
-    assert_redirected_to friends_url
+  test "should require login" do
+    reset_session!
+    get friends_url
+    assert_redirected_to new_session_path
   end
 end

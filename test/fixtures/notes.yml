@@ -1,13 +1,9 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  text: MyString
-  list: MyString
-  image: MyString
+  title: My Note
+  content: Some content
   user: one
 
 two:
-  text: MyString
-  list: MyString
-  image: MyString
+  title: Another Note
+  content: More content
   user: two

@@ -1,24 +1,48 @@
-# README
+# Notes App
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Ruby on Rails application for managing notes with collections, friend sharing, and notification-based collaboration.
 
-Things you may want to cover:
+## Tech Stack
 
-* Ruby version
+- **Ruby** 3.3.0
+- **Rails** 7.1.3.2
+- **Database** MongoDB (via Mongoid 8.1.5)
+- **Frontend** Bootstrap 5, Hotwire (Turbo + Stimulus), TinyMCE 7
+- **Auth** Custom session-based with bcrypt
+- **File Uploads** CarrierWave
+- **Container** Docker + docker-compose
 
-* System dependencies
+## Requirements
 
-* Configuration
+- Ruby 3.3.0
+- MongoDB 7+ (local or MongoDB Atlas)
 
-* Database creation
+## Local Setup
 
-* Database initialization
+```bash
+git clone <repo-url>
+cd WebSystemsLab
+bundle install
+cp .env.example .env
+# Edit .env with your MongoDB URI
+bin/rails server
+```
 
-* How to run the test suite
+## Docker Setup
 
-* Services (job queues, cache servers, search engines, etc.)
+```bash
+docker-compose up
+```
 
-* Deployment instructions
+## Testing
 
-* ...
+```bash
+bin/rails test
+```
+
+## Code Quality
+
+```bash
+bundle exec rubocop
+bundle exec brakeman
+```

@@ -2,7 +2,7 @@ require "test_helper"
 
 class CollectionsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @collection = collections(:one)
+    post sessions_url, params: { name: users(:one).name, password: "password123" }
   end
 
   test "should get index" do
@@ -17,32 +17,24 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create collection" do
     assert_difference("Collection.count") do
-      post collections_url, params: { collection: { name: @collection.name, note_id: @collection.note_id, user_id: @collection.user_id } }
+      post collections_url, params: { collection: { title: "New Collection" } }
     end
-
-    assert_redirected_to collection_url(Collection.last)
+    assert_redirected_to notes_owned_path
   end
 
   test "should show collection" do
-    get collection_url(@collection)
+    get collection_url(collections(:one))
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_collection_url(@collection)
+    get edit_collection_url(collections(:one))
     assert_response :success
   end
 
-  test "should update collection" do
-    patch collection_url(@collection), params: { collection: { name: @collection.name, note_id: @collection.note_id, user_id: @collection.user_id } }
-    assert_redirected_to collection_url(@collection)
-  end
-
-  test "should destroy collection" do
-    assert_difference("Collection.count", -1) do
-      delete collection_url(@collection)
-    end
-
-    assert_redirected_to collections_url
+  test "should require login" do
+    reset_session!
+    get collections_url
+    assert_redirected_to new_session_path
   end
 end

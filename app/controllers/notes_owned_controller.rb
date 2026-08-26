@@ -1,23 +1,17 @@
 class NotesOwnedController < ApplicationController
-    before_action :logged, only: [:index]
-    def index
-        session[:myroute] = '/notes_owned'
-        @myroute = session[:myroute]
-        @user = User.find_by(name: session[:user])
-        @notes = @user.notes || []
-        @sharednotes = []
-        @friends = @user.friends || []
-        
-            @friends.each do |friend|
-                friend.notes.each do |note|
-                    if note.shares != nil && note.share_ids.include?(User.find_by(name: session[:user]).id)
-                    @sharednotes.push(note)
-                    end
-                end
-            end
-        
-        @notifications = Notification.where(receiver_id: User.find_by(name: session[:user]).id, status: 'pending')
+  before_action :require_login
+
+  def index
+    @user = current_user
+    @notes = @user.notes || []
+    @sharednotes = []
+    friend_ids = @user.friend_ids || []
+
+    if friend_ids.any?
+      shared_notes = Note.where(:share_ids.in => [current_user.id], :user_id.nin => [current_user.id])
+      @sharednotes = shared_notes.to_a
     end
 
-    
+    @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
+  end
 end

@@ -1,35 +1,33 @@
 class ApplicationController < ActionController::Base
-    def logged
-        if not session[:user].present?
-          redirect_to '/sessions/new'
-        end
-    end
+  helper_method :current_user
 
-    def noteOwned
-      
-        note = @note.user_id
-        user = User.find_by(name: session[:user])
-        shares = @note.shares
-        if user.role != 'admin' && !shares.include?(user) && note != user.id
-          redirect_to '/notes_owned'
-        end
-    end
+  private
 
-    def collectionOwned
-        collection = @collection.user_id
-        user = User.find_by(name: session[:user])
-        shares = @collection.shares
-        if user.role != 'admin' && !shares.include?(user) && collection != user.id
-          redirect_to '/collections_owned'
-        end
-    end
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+  end
 
-    def isAdmid
-      if not session[:user].present?
-        redirect_to '/sessions/new'
-      end
-      if not User.find_by(name: session[:user]).role === 'admin'
-        redirect_to '/home'
-      end
+  def require_login
+    unless current_user
+      redirect_to new_session_path, alert: "You must be logged in."
     end
+  end
+
+  def require_admin
+    unless current_user&.role == "admin"
+      redirect_to home_path, alert: "You are not authorized to perform this action."
+    end
+  end
+
+  def authorize_note_owner!
+    unless current_user.admin? || @note.share_ids.include?(current_user.id) || @note.user_id == current_user.id
+      redirect_to notes_owned_path, alert: "You are not authorized to access this note."
+    end
+  end
+
+  def authorize_collection_owner!
+    unless current_user.admin? || @collection.share_ids.include?(current_user.id) || @collection.user_id == current_user.id
+      redirect_to collections_owned_path, alert: "You are not authorized to access this collection."
+    end
+  end
 end

@@ -1,22 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0; margin-bottom: 5rem;">
-  <div class="container">
-    <% if not session[:user].present? %>
-    <a class="navbar-brand nav-text" href="/"><i class="fas fa-home"></i> Welcome Page!</a>
-    <% else %>
-    <a class="navbar-brand nav-text" href="/home"><i class="fas fa-home"></i> Home Page!</a>
-    <% end %>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <ul class="navbar-nav ms-auto nav-text"> 
-        <%= form_tag '/logout', method: :delete do %>
-          <%= button_tag type: 'submit', class: 'nav-link btn btn-outline-dark' do %>
-            <i class="fa-solid fa-right-from-bracket"></i> LogOut
-          <% end %>
-        <% end %>
-      </ul>
-  </div>
-</nav>
+<%= render 'layouts/navbar' %>
+
 <div class="container mt-5">
   <div class="card shadow-sm">
     <div class="card-header">
@@ -24,8 +7,8 @@
     </div>
     <div class="card-body">
       <h3>Name:</h3>
-      <p><%= @friend.name %></p>
-      
+      <p><%= sanitize(@friend.name) %></p>
+
       <% if @friend.role.present? %>
         <h3>Role:</h3>
         <p><%= @friend.role %></p>
@@ -43,7 +26,7 @@
                   <div class="card-text note-content">
                     <% if note.content.present? %>
                       <div style="max-width: 500px; max-height: 500px; overflow: auto;">
-                        <%= raw(note.content.html_safe) %>
+                        <%= sanitize(note.content) %>
                       </div>
                     <% end %>
                   </div>
@@ -60,7 +43,7 @@
           <p>This friend don't have any note shared with you!</p>
         <% end %>
       </div>
-      
+
       <h2>Collections:</h2>
       <div class="row">
         <% if @collections.present? %>
@@ -71,14 +54,14 @@
                   <h5 class="card-title"><%= collection.title %></h5>
                   <hr class="my-4 border border-dark">
                   <div class="card-text collection-notes">
-                <% if collection.notes.any? %>
-                  <% collection.notes.each do |note| %>
-                    <p><%= truncate(raw(note.title), length: 50) %></p>
-                  <% end %>
-                <% else %>
-                  <p>No notes in this collection yet.</p>
-                <% end %>
-              </div>
+                    <% if collection.notes.any? %>
+                      <% collection.notes.each do |note| %>
+                        <p><%= truncate(sanitize(note.title), length: 50) %></p>
+                      <% end %>
+                    <% else %>
+                      <p>No notes in this collection yet.</p>
+                    <% end %>
+                  </div>
                 </div>
                 <div class="card-footer">
                   <%= link_to collection, class: 'btn btn-primary mr-2' do %>
@@ -93,9 +76,9 @@
         <% end %>
       </div>
     </div>
-  
+
     <div class="card-footer d-flex align-items-center gap-2">
-      <%= link_to '/friends', class: 'back-button my-2' do %>
+      <%= link_to friends_path, class: 'back-button my-2' do %>
         <i class="fas fa-arrow-left"></i> Back
       <% end %>
     </div>
