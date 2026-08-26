@@ -2,6 +2,34 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# The teardown below calls Mongoid.purge!, which drops every collection in the
+# connected database. A misconfigured MONGODB_TEST_URI would therefore wipe
+# real data, so refuse to run unless the target is demonstrably a test
+# database and distinct from the development one.
+module TestDatabaseGuard
+  def self.check!
+    test_db = Mongoid.default_client.database.name
+    dev_db = development_database_name
+
+    if test_db == dev_db
+      abort "Refusing to run: MONGODB_TEST_URI points at the development " \
+            "database (#{test_db}). The suite purges it between tests."
+    end
+
+    return if test_db.match?(/test/i)
+
+    abort "Refusing to run: the test database (#{test_db}) is not named like " \
+          "a test database. The suite purges it between tests."
+  end
+
+  def self.development_database_name
+    uri = ENV["MONGODB_URI"].to_s
+    uri[%r{\A mongodb (?:\+srv)? :// [^/]+ / ([^?]+)}x, 1]
+  end
+end
+
+TestDatabaseGuard.check!
+
 # Rails fixtures are ActiveRecord-only, and this app runs on Mongoid, so
 # `fixtures :all` raised NoMethodError and no test could ever load. This is a
 # minimal stand-in: it reads the same test/fixtures/*.yml files and exposes the

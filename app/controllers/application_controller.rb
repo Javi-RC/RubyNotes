@@ -4,7 +4,11 @@ class ApplicationController < ActionController::Base
   private
 
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+    return unless session[:user_id]
+
+    # find_by raises DocumentNotFound in Mongoid, so a session holding a
+    # deleted user's id would break every page instead of signing them out.
+    @current_user ||= User.where(id: session[:user_id]).first
   end
 
   def require_login

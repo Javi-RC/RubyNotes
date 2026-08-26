@@ -50,7 +50,9 @@ class NotificationsController < ApplicationController
   end
 
   def set_notification
-    @notification = own_notifications.find_by(id: params[:id])
+    # .where(...).first, not find_by: Mongoid's find_by raises
+    # DocumentNotFound, which would surface as a 404 instead of this redirect.
+    @notification = own_notifications.where(id: params[:id]).first
     return if @notification
 
     redirect_to notifications_path, alert: "That notification is not available."

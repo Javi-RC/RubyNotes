@@ -23,7 +23,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should require login" do
-    reset_session!
+    reset!
     get friends_url
     assert_redirected_to new_session_path
   end
