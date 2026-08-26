@@ -13,9 +13,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 gem "bootsnap", require: false
 gem "sassc-rails"
 gem "mongoid"
-gem "bootstrap"
 gem "bcrypt"
-gem "popper_js"
 gem "carrierwave"
 gem "carrierwave-mongoid"
 gem "dotenv-rails", groups: [:development, :test]
@@ -32,6 +30,9 @@ group :development do
 end
 
 group :test do
+  # Rails 7.1's test runner (line_filtering.rb) calls Minitest::Test.run with a
+  # 5.x signature; Minitest 6 changed it and every test run aborts.
+  gem "minitest", "~> 5.25"
   gem "capybara"
   gem "selenium-webdriver"
 end

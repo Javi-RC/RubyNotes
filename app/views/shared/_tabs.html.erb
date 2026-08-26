@@ -1,0 +1,19 @@
+<%#
+  Server-rendered tabs: real links, so the state is bookmarkable, survives a
+  reload and works without JavaScript.
+  tabs: [{ key:, label:, icon:, count: }, ...], current: active key.
+%>
+<nav class="nav-tabs-custom" aria-label="<%= local_assigns.fetch(:label, 'Views') %>">
+  <% tabs.each do |tab| %>
+    <% active = tab[:key].to_s == current.to_s %>
+    <%= link_to query_url(tab: tab[:key], page: nil),
+          class: "nav-tab #{'nav-tab--active' if active}",
+          'aria-current': (active ? 'page' : nil) do %>
+      <%= icon tab[:icon] %>
+      <span><%= tab[:label] %></span>
+      <% if tab[:count] %>
+        <span class="nav-tab__count"><%= tab[:count] %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+</nav>

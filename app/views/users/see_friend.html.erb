@@ -1,0 +1,37 @@
+<% page_title @friend.name %>
+<% breadcrumb ['Friends', friends_path], [@friend.name] %>
+
+<%= render 'shared/back_link', label: 'Back to friends', back_path: friends_path %>
+
+<%= render layout: 'shared/detail_card', locals: {
+      title: @friend.name,
+      heading: capture { render 'users/profile_heading', user: @friend }
+    } do %>
+
+  <h3 class="section-heading">Shared notes</h3>
+  <% if @notes.any? %>
+    <div class="grid-cards mb-6">
+      <% @notes.each do |note| %>
+        <%= render 'notes/note_card', note: note %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'sticky-note',
+          title: 'No notes shared with you.',
+          description: "#{@friend.name} hasn't shared any notes with you yet." %>
+  <% end %>
+
+  <h3 class="section-heading">Shared collections</h3>
+  <% if @collections.any? %>
+    <div class="grid-cards">
+      <% @collections.each do |collection| %>
+        <%= render 'collections/collection_card', collection: collection %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'folder',
+          title: 'No collections shared with you.' %>
+  <% end %>
+<% end %>

@@ -1,47 +1,43 @@
-<%= render 'layouts/navbar' %>
+<% page_title @note.title %>
+<% breadcrumb ['My Notes', notes_owned_index_path], [@note.title] %>
 
-<div class="container mt-5">
-  <div class="card shadow-sm">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Note Details</h5>
-    </div>
-    <div class="card-body">
-      <div class="field">
-        <h5>Title: <%= @note.title %></h5>
+<%= render 'shared/back_link', label: 'Back to notes', back_path: notes_owned_index_path %>
 
-        <br>
-        <div class="card-text">
-          <% if @note.content.present? %>
-            <%= sanitize(@note.content) %>
-          <% end %>
-        </div>
-        <br>
-        <% if @note.collections.any? %>
-          <h6>Collections:</h6>
-          <ul>
-            <% @note.collections.each do |collection| %>
-              <li><%= link_to sanitize(collection.title), collection_path(collection) %></li>
-            <% end %>
-          </ul>
-        <% else %>
-          <p>This note is not in a collection yet!</p>
+<%= render layout: 'shared/detail_card', locals: {
+      title: @note.title,
+      meta: capture {
+        safe_join([
+          content_tag(:span, safe_join([icon('user'), " #{@note.user.name}"]), class: 'badge badge-neutral'),
+          content_tag(:span, safe_join([icon('clock', style: :regular), " #{time_ago(@note)}"]), class: 'badge badge-neutral')
+        ].compact)
+      },
+      actions: (note_manageable?(@note) ? capture {
+        safe_join([
+          link_to(edit_note_path(@note), class: 'btn btn-sm btn-secondary') { safe_join([icon('pen'), ' Edit']) },
+          button_to(note_path(@note), method: :delete, class: 'btn btn-sm btn-danger',
+                    form: { data: { turbo_confirm: "Delete “#{@note.title}”? This cannot be undone." } }) {
+            safe_join([icon('trash-can', style: :regular), ' Delete'])
+          }
+        ])
+      } : nil)
+    } do %>
+
+  <% if @note.content.present? %>
+    <div class="rich-content"><%= sanitize(@note.content) %></div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'file-lines', title: 'This note has no content yet.' %>
+  <% end %>
+
+  <% if @note.collections.any? %>
+    <div class="divider"></div>
+    <h3 class="section-heading">Collections</h3>
+    <div class="content-card__tags">
+      <% @note.collections.each do |collection| %>
+        <%= link_to collection_path(collection), class: 'badge badge-primary' do %>
+          <%= icon 'folder' %> <%= collection.title %>
         <% end %>
-      </div>
-    </div>
-
-    <div class="card-footer d-flex align-items-center gap-2">
-      <%= link_to (request.referer || root_path), class: 'back-button my-2' do %>
-        <i class="fas fa-arrow-left"></i> Back
-      <% end %>
-      <%= link_to edit_note_path(@note), class: 'btn btn-secondary' do %>
-        <i class="fas fa-edit"></i> Edit
-      <% end %>
-      <%= link_to edit_note_path(@note), class: 'btn btn-primary mr-2' do %>
-        <i class="fas fa-plus"></i> Add to Collection
-      <% end %>
-      <%= button_to note_path(@note), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-        <i class="fas fa-trash-alt"></i> Delete
       <% end %>
     </div>
-  </div>
-</div>
+  <% end %>
+<% end %>

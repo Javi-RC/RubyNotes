@@ -1,8 +1,10 @@
 /.bundle
 /.env*
 !/.env*.erb
+# Template only, no real values: /.env* was swallowing it.
+!/.env.example
 !/log/.keep
-/log/development.log
+/log/*.log
 !/tmp/.keep
 !/tmp/pids/.keep
 !/tmp/storage/.keep

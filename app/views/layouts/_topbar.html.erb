@@ -1,0 +1,40 @@
+<header class="topbar">
+  <button type="button" class="topbar__hamburger"
+          data-sidebar-target="toggle"
+          data-action="click->sidebar#toggle"
+          aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+    <%= icon 'bars' %>
+  </button>
+
+  <div class="topbar__left">
+    <% if content_for?(:breadcrumb) %>
+      <nav class="topbar__breadcrumb" aria-label="Breadcrumb">
+        <%= yield :breadcrumb %>
+      </nav>
+    <% end %>
+  </div>
+
+  <div class="topbar__right">
+    <button type="button" class="topbar__action-icon"
+            data-controller="theme" data-action="click->theme#toggle"
+            aria-label="Switch colour theme">
+      <span class="theme-toggle__light"><%= icon 'sun' %></span>
+      <span class="theme-toggle__dark"><%= icon 'moon' %></span>
+    </button>
+
+    <%= link_to notifications_path, class: 'topbar__notification-btn', 'aria-label': 'Notifications' do %>
+      <%= icon 'bell' %>
+      <% if notification_count.positive? %>
+        <span class="topbar__notification-badge">
+          <%= notification_count %>
+          <span class="visually-hidden">pending notifications</span>
+        </span>
+      <% end %>
+    <% end %>
+
+    <%= link_to new_note_path, class: 'btn btn-primary btn-sm hide-mobile' do %>
+      <%= icon 'plus' %>
+      <span>New Note</span>
+    <% end %>
+  </div>
+</header>

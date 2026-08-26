@@ -1,0 +1,35 @@
+<% presentation = notification_presentation(notification) %>
+<% type = presentation[:type] %>
+<% status = presentation[:status] %>
+
+<li class="list-item">
+  <div class="list-item__icon list-item__icon--<%= type[:style] %>">
+    <%= icon type[:icon] %>
+  </div>
+
+  <div class="list-item__content">
+    <p class="list-item__title"><%= notification.message %></p>
+    <div class="list-item__subtitle">
+      <%# Icon as well as colour: status must not depend on colour alone. %>
+      <span class="badge <%= status[:badge] %>"><%= icon status[:icon] %> <%= status[:label] %></span>
+      <span><%= icon 'clock', style: :regular %> <%= time_ago(notification) %></span>
+    </div>
+  </div>
+
+  <div class="list-item__actions">
+    <% if notification.status == 'pending' %>
+      <%= button_to accept_notification_path(notification), class: 'btn btn-sm btn-success' do %>
+        <%= icon 'check' %> Accept
+      <% end %>
+      <%= button_to deny_notification_path(notification), class: 'btn btn-sm btn-danger' do %>
+        <%= icon 'times' %> Deny
+      <% end %>
+    <% else %>
+      <%= button_to notification_path(notification), method: :delete, class: 'btn btn-sm btn-ghost',
+            'aria-label': 'Delete notification',
+            form: { data: { turbo_confirm: 'Delete this notification?' } } do %>
+        <%= icon 'trash-can', style: :regular %>
+      <% end %>
+    <% end %>
+  </div>
+</li>

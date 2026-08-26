@@ -1,0 +1,21 @@
+<%#
+  Locals: title (required), description, object.
+
+  Render this with `render layout: 'shared/form_card'` and a block holding the
+  form fields; a plain `render` cannot pass one. Passing `object` renders its
+  validation errors above the fields.
+%>
+<div class="card card-form">
+  <div class="card-header">
+    <h2 class="section-title"><%= title %></h2>
+    <% if local_assigns[:description].present? %>
+      <p class="card-header__description"><%= local_assigns[:description] %></p>
+    <% end %>
+  </div>
+  <div class="card-body">
+    <% if local_assigns[:object] %>
+      <%= render 'shared/form_errors', object: object %>
+    <% end %>
+    <%= yield %>
+  </div>
+</div>

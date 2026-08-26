@@ -1,24 +1,31 @@
 class UsersController < ApplicationController
-  before_action :require_login, only: [:index, :show, :edit, :update, :destroy, :show_profile, :see_friend]
-  before_action :require_admin, only: [:index, :show, :edit]
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :show_profile]
+  include Paginatable
+
+  before_action :require_login, only: %i[index show edit update destroy show_profile see_friend]
+  # Platform-wide listings stay admin-only. #edit left this list because it
+  # also serves "Edit profile": a normal user following that link was bounced
+  # to the dashboard, so editing your own account was impossible.
+  before_action :require_admin, only: %i[index show]
+  before_action :set_user, only: %i[show edit update destroy show_profile]
+  # Editing and deleting an account: yourself, or an admin. Previously any
+  # signed-in user could update or destroy any other account by id.
+  before_action :authorize_user_management!, only: %i[edit update destroy]
 
   def new
     @user = User.new
   end
 
   def index
-    @users = User.all
-    @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
+    @users = paginate(search_scope(User.all, field: :name))
   end
 
-  def show
-  end
+  def show; end
 
-  def edit
-  end
+  def edit; end
 
   def update
+    apply_role_change(@user)
+
     if @user.update(user_params)
       if current_user.admin?
         redirect_to @user, notice: "User was successfully updated."
@@ -32,6 +39,8 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    apply_role_change(@user)
+
     if @user.save
       if current_user
         redirect_to users_path, notice: "User created successfully!"
@@ -55,11 +64,9 @@ class UsersController < ApplicationController
   end
 
   def show_profile
-    if current_user.id == @user.id
-      @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
-    else
-      redirect_to home_path, alert: "You are not authorized to view this profile."
-    end
+    return if current_user.id == @user.id
+
+    redirect_to home_path, alert: "You are not authorized to view this profile."
   end
 
   def see_friend
@@ -68,7 +75,6 @@ class UsersController < ApplicationController
       redirect_to home_path, alert: "You are not friends with this user."
       return
     end
-    @myroute = session[:myroute]
     @notes = @friend.notes.select { |note| note.share_ids.include?(current_user.id) }
     @collections = @friend.collections.select { |collection| collection.share_ids.include?(current_user.id) }
   end
@@ -79,8 +85,26 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
+  def authorize_user_management!
+    return if current_user.admin? || current_user.id == @user.id
+
+    redirect_to home_path, alert: "You are not authorized to manage this account."
+  end
+
   def user_params
     params.require(:user).permit(:name, :password, :password_confirmation)
+  end
+
+  # Role is deliberately kept out of user_params. It used to be permitted for
+  # nobody, so the role select in the form silently did nothing; permitting it
+  # for everyone would let any user make themselves an admin. Assigning it here
+  # keeps the privilege boundary to one explicit, admin-gated line. The model
+  # still validates the value against %w[user admin].
+  def apply_role_change(user)
+    return unless current_user&.admin?
+
+    role = params.dig(:user, :role)
+    user.role = role if role.present?
   end
 
   def transfer_user_data(user)
@@ -111,12 +135,12 @@ class UsersController < ApplicationController
         note.shares.delete(user) if note.share_ids.include?(user.id)
       end
       friend.collections.each do |collection|
-        if collection.share_ids.include?(user.id)
-          collection.notes.each do |note|
-            note.collections.delete(collection) if note.user_id == user.id
-          end
-          collection.shares.delete(user)
+        next unless collection.share_ids.include?(user.id)
+
+        collection.notes.each do |note|
+          note.collections.delete(collection) if note.user_id == user.id
         end
+        collection.shares.delete(user)
       end
       user.friend_ids.delete(friend.id)
       friend.friend_ids.delete(user.id)

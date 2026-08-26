@@ -1,17 +1,30 @@
 class NotesOwnedController < ApplicationController
+  include Paginatable
+
   before_action :require_login
+
+  TABS = %w[owned shared].freeze
 
   def index
     @user = current_user
-    @notes = @user.notes || []
-    @sharednotes = []
-    friend_ids = @user.friend_ids || []
+    @tab = TABS.include?(params[:tab]) ? params[:tab] : "owned"
 
-    if friend_ids.any?
-      shared_notes = Note.where(:share_ids.in => [current_user.id], :user_id.nin => [current_user.id])
-      @sharednotes = shared_notes.to_a
-    end
+    @owned_count = @user.notes.count
+    @shared_count = shared_notes.count
 
-    @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
+    scope = @tab == "shared" ? shared_notes : @user.notes
+    @notes = paginate(search_scope(scope))
+  end
+
+  private
+
+  # Preserves the original guard: with no friends, nothing is treated as
+  # shared with you.
+  def shared_notes
+    @shared_notes ||= if (current_user.friend_ids || []).any?
+                        Note.where(:share_ids.in => [current_user.id], :user_id.nin => [current_user.id])
+                      else
+                        Note.where(:_id.in => [])
+                      end
   end
 end

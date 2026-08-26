@@ -1,31 +1,41 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'My Friends' %>
+<% breadcrumb ['Friends'] %>
+
+<%= render 'shared/page_header',
+      title: 'My Friends',
+      subtitle: "People you've connected with",
+      actions: capture {
+        link_to new_friend_path, class: 'btn btn-primary' do
+          safe_join([icon('user-plus'), ' Add Friend'])
+        end
+      } %>
+
+<div class="search-wrapper">
+  <%= render 'shared/search_input', placeholder: 'Search friends by name...' %>
+</div>
 
 <% if @friends.any? %>
-  <div class="container mt-5">
-    <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
-    <div data-controller="search" data-search-match-on-value=".card-title">
-      <form class="d-flex mb-2">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" data-search-target="input" data-action="input->search#filter">
-      </form>
-      <div class="row" data-search-target="list">
-        <% @friends.each do |friend| %>
-          <div class="col-md-4 mb-4 friend" data-search-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= sanitize(friend.name) %></h5>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to 'See Friend', see_friend_path(friend), class: 'btn btn-success mr-2' %>
-                <%= button_to 'Remove Friend', remove_friend_path(friend), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger', remote: true %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
+  <div class="grid-cards">
+    <% @friends.each do |friend| %>
+      <%= render 'friends/friend_card', friend: friend %>
+    <% end %>
   </div>
+
+  <%= render 'shared/pagination' %>
+<% elsif searching? %>
+  <%= render 'shared/empty_state',
+        icon: 'magnifying-glass', icon_style: :solid,
+        title: "No friends match “#{search_query}”",
+        description: 'Try a different name.',
+        action_path: friends_path,
+        action_icon: 'times',
+        action_label: 'Clear search' %>
 <% else %>
-  <div class="container text-center mt-5">
-    <p style="font-size: 48px;"><i class="far fa-frown"></i> You have no friends <i class="far fa-frown"></i></p>
-  </div>
+  <%= render 'shared/empty_state',
+        icon: 'user-friends', icon_style: :solid,
+        title: 'No friends yet',
+        description: 'Add friends to share notes and collections with them.',
+        action_path: new_friend_path,
+        action_icon: 'user-plus',
+        action_label: 'Add Friend' %>
 <% end %>

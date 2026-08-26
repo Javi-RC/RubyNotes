@@ -1,0 +1,79 @@
+<aside class="sidebar" id="sidebar" data-sidebar-target="sidebar" aria-label="Main navigation">
+  <%= link_to home_path, class: 'sidebar__brand' do %>
+    <%= icon 'sticky-note' %>
+    <span>RubyNotes</span>
+  <% end %>
+
+  <nav class="sidebar__nav">
+    <div class="sidebar__section">
+      <%= link_to home_path, **nav_link_attrs(home_path) do %>
+        <%= icon 'th-large' %>
+        <span>Dashboard</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar__section">
+      <h2 class="sidebar__section-label">My Content</h2>
+      <%= link_to notes_owned_index_path, **nav_link_attrs(notes_owned_index_path) do %>
+        <%= icon 'sticky-note' %>
+        <span>My Notes</span>
+      <% end %>
+      <%= link_to collections_owned_index_path, **nav_link_attrs(collections_owned_index_path) do %>
+        <%= icon 'folder' %>
+        <span>My Collections</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar__section">
+      <h2 class="sidebar__section-label">Social</h2>
+      <%= link_to friends_path, **nav_link_attrs(friends_path) do %>
+        <%= icon 'user-friends' %>
+        <span>Friends</span>
+      <% end %>
+      <%= link_to notifications_path, **nav_link_attrs(notifications_path) do %>
+        <%= icon 'bell' %>
+        <span>Notifications</span>
+        <% if notification_count.positive? %>
+          <span class="sidebar__badge">
+            <%= notification_count %>
+            <span class="visually-hidden">pending notifications</span>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if current_user&.admin? %>
+      <div class="sidebar__section">
+        <h2 class="sidebar__section-label">Administration</h2>
+        <%= link_to users_path, **nav_link_attrs(users_path) do %>
+          <%= icon 'users' %>
+          <span>All Users</span>
+        <% end %>
+        <%= link_to notes_path, **nav_link_attrs(notes_path) do %>
+          <%= icon 'file-lines', style: :regular %>
+          <span>All Notes</span>
+        <% end %>
+        <%= link_to collections_path, **nav_link_attrs(collections_path) do %>
+          <%= icon 'box' %>
+          <span>All Collections</span>
+        <% end %>
+      </div>
+    <% end %>
+  </nav>
+
+  <div class="sidebar__footer">
+    <%= link_to show_profile_path(current_user), class: 'sidebar__link sidebar__link--profile' do %>
+      <%= avatar_for(current_user, size: :md) %>
+      <span class="sidebar__user-info">
+        <span class="sidebar__user-name"><%= current_user.name %></span>
+        <span class="sidebar__user-role"><%= current_user.role %></span>
+      </span>
+    <% end %>
+    <%= button_to logout_path, method: :delete, class: 'sidebar__logout',
+          form: { class: 'sidebar__logout-form' }, title: 'Log out', 'aria-label': 'Log out' do %>
+      <%= icon 'sign-out-alt' %>
+    <% end %>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" data-sidebar-target="overlay" data-action="click->sidebar#close"></div>

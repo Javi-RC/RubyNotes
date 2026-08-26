@@ -1,0 +1,12 @@
+<% flash.each do |type, message| %>
+  <%# Errors use role=alert (interrupts); confirmations use role=status. %>
+  <div class="flash flash--<%= flash_class(type) %>"
+       role="<%= flash_class(type) == 'alert' ? 'alert' : 'status' %>"
+       data-controller="flash">
+    <%= icon flash_icon(type), css_class: 'flash__icon' %>
+    <span class="flash__message"><%= message %></span>
+    <button type="button" class="flash__close" data-action="flash#dismiss" aria-label="Dismiss message">
+      <%= icon 'times' %>
+    </button>
+  </div>
+<% end %>

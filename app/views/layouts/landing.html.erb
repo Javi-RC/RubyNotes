@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= render 'layouts/head' %>
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="flash-container" id="flash-messages">
+      <%= render 'shared/flash' %>
+    </div>
+
+    <%= yield %>
+  </body>
+</html>

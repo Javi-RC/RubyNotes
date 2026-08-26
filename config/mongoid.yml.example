@@ -1,0 +1,19 @@
+# Template for config/mongoid.yml, which is gitignored because it used to hold
+# a live Atlas connection string. Copy this file if you ever need to recreate
+# it; the actual credentials belong in .env (see .env.example).
+development:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI") %>
+
+test:
+  clients:
+    default:
+      # Any reachable MongoDB. Never the development cluster: the test suite
+      # calls Mongoid.purge! between tests.
+      uri: <%= ENV.fetch("MONGODB_TEST_URI", "mongodb://localhost:27017/rubynotes_test") %>
+
+production:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI") %>

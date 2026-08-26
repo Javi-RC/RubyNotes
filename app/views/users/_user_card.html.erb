@@ -1,0 +1,32 @@
+<article class="content-card">
+  <div class="content-card__body">
+    <div class="content-card__meta">
+      <span><%= icon 'user-shield' %> <%= user.role&.capitalize %></span>
+    </div>
+    <div class="avatar-info">
+      <%= avatar_for(user, size: :lg) %>
+      <div>
+        <h3 class="content-card__title"><%= user.name %></h3>
+        <div class="content-card__tags">
+          <span class="badge badge-neutral"><%= icon 'sticky-note' %> <%= pluralize(user.notes.count, 'note') %></span>
+          <span class="badge badge-neutral"><%= icon 'folder' %> <%= pluralize(user.collections.count, 'collection') %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card__footer">
+    <%= link_to user, class: 'btn btn-sm btn-secondary' do %>
+      <%= icon 'eye' %> View
+    <% end %>
+    <%= link_to edit_user_path(user), class: 'btn btn-sm btn-secondary' do %>
+      <%= icon 'pen' %> Edit
+    <% end %>
+    <% unless user == current_user %>
+      <%= button_to user_path(user), method: :delete, class: 'btn btn-sm btn-danger',
+            form: { data: { turbo_confirm: "Delete #{user.name}? Their notes and collections will be transferred or removed. This cannot be undone." } } do %>
+        <%= icon 'trash-can', style: :regular %> Delete
+      <% end %>
+    <% end %>
+  </div>
+</article>

@@ -1,16 +1,19 @@
 class CollectionsController < ApplicationController
-  before_action :require_login, except: []
-  before_action :set_collection, only: [:show, :edit, :update, :destroy]
-  before_action :authorize_collection_owner!, only: [:show, :edit]
+  include Paginatable
+
+  before_action :require_login
+  # As with notes#index: a platform-wide listing, reachable only from the
+  # sidebar's Administration section.
+  before_action :require_admin, only: %i[index]
+  before_action :set_collection, only: %i[show edit update destroy]
+  before_action :authorize_collection_owner!, only: %i[show edit update]
+  before_action :authorize_collection_manager!, only: %i[destroy]
 
   def index
-    @collections = Collection.all
-    @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
+    @collections = paginate(search_scope(Collection.all))
   end
 
-  def show
-    @myroute = session[:myroute]
-  end
+  def show; end
 
   def new
     @collection = Collection.new
@@ -19,7 +22,6 @@ class CollectionsController < ApplicationController
   end
 
   def edit
-    @myroute = session[:myroute]
     @user = current_user
     @notes = @user.notes
     @collection_notes = @collection.notes.reject { |n| @notes.include?(n) }
@@ -28,14 +30,13 @@ class CollectionsController < ApplicationController
   end
 
   def create
-    @myroute = session[:myroute]
     note_ids = params[:collection][:note_ids]&.map { |id| BSON::ObjectId(id) } || []
 
     @collection = Collection.new(collection_params.merge(note_ids: note_ids))
     @collection.user = current_user
 
     if @collection.save
-      redirect_to notes_owned_path, notice: "Collection was successfully created."
+      redirect_to notes_owned_index_path, notice: "Collection was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -56,16 +57,15 @@ class CollectionsController < ApplicationController
     remove_shares_from_notes(note_ids, sharecontent)
 
     if @collection.update(collection_params.merge(note_ids: note_ids, share_ids: old_shares_ids))
-      redirect_to notes_owned_path, notice: "Collection was successfully updated."
+      redirect_to notes_owned_index_path, notice: "Collection was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @myroute = session[:myroute]
     @collection.destroy
-    redirect_to notes_owned_path, notice: "Collection was successfully destroyed."
+    redirect_to notes_owned_index_path, notice: "Collection was successfully destroyed."
   end
 
   private
@@ -126,6 +126,7 @@ class CollectionsController < ApplicationController
 
       sharecontent.each do |share|
         next if note.user_id == share.id
+
         note.shares.push(share)
         note.save
       end

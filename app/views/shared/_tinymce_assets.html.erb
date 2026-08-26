@@ -1,0 +1,4 @@
+<%# Loaded only on pages with a rich-text editor, not on every page. %>
+<% content_for :head do %>
+  <script src="https://cdn.tiny.cloud/1/<%= ENV.fetch('TINYMCE_API_KEY', '') %>/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<% end %>

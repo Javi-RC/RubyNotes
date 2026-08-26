@@ -1,66 +1,87 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>We're sorry, but something went wrong (500)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-  .rails-default-error-page {
-    background-color: #EFEFEF;
-    color: #2E2F30;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
+<html lang="en">
+  <head>
+    <title>Server Error — RubyNotes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+      /* These pages are served statically by the web server, with no access
+         to the asset pipeline, so the design tokens are mirrored here. */
+      :root {
+        color-scheme: light dark;
+        --bg-app: #F9FAFB;
+        --bg-surface: #FFFFFF;
+        --text-primary: #111827;
+        --text-body: #1F2937;
+        --text-muted: #57606F;
+        --border-default: #E5E7EB;
+        --border-strong: #D1D5DB;
+        --brand: #2563EB;
+        --brand-hover: #1D4ED8;
+        --on-brand: #FFFFFF;
+        --code-color: #E5E7EB;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-app: #0B1120;
+          --bg-surface: #151C2C;
+          --text-primary: #F9FAFB;
+          --text-body: #E5E7EB;
+          --text-muted: #A3AEC2;
+          --border-default: #2A3448;
+          --border-strong: #3B4761;
+          --brand: #3B82F6;
+          --brand-hover: #60A5FA;
+          --on-brand: #0B1120;
+          --code-color: #2A3448;
+        }
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg-app);
+        color: var(--text-body);
+        display: flex; align-items: center; justify-content: center;
+        min-height: 100vh; padding: 24px; line-height: 1.6;
+      }
+      .container { text-align: center; max-width: 440px; }
+      .error-code { font-size: 6rem; font-weight: 700; color: var(--code-color); line-height: 1; margin-bottom: 8px; }
+      .icon { font-size: 2.5rem; color: var(--border-strong); margin-bottom: 24px; }
+      h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; }
+      p { font-size: 0.9375rem; color: var(--text-muted); margin-bottom: 24px; }
+      .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 20px; border-radius: 8px;
+        font-size: 0.875rem; font-weight: 500; text-decoration: none;
+        border: 1px solid transparent; cursor: pointer;
+        transition: background 150ms ease, border-color 150ms ease;
+      }
+      .btn-primary { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+      .btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+      .btn-secondary { background: var(--bg-surface); color: var(--text-body); border-color: var(--border-default); }
+      .btn-secondary:hover { border-color: var(--border-strong); }
+      :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+      @media (prefers-reduced-motion: reduce) { * { transition-duration: 0.01ms !important; } }
+      @media (max-width: 420px) { .error-code { font-size: 4.5rem; } .actions .btn { width: 100%; justify-content: center; } }
+    </style>
+  </head>
 
-  .rails-default-error-page div.dialog {
-    width: 95%;
-    max-width: 33em;
-    margin: 4em auto 0;
-  }
-
-  .rails-default-error-page div.dialog > div {
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #BBB;
-    border-top: #B00100 solid 4px;
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    background-color: white;
-    padding: 7px 12% 0;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-
-  .rails-default-error-page h1 {
-    font-size: 100%;
-    color: #730E15;
-    line-height: 1.5em;
-  }
-
-  .rails-default-error-page div.dialog > p {
-    margin: 0 0 1em;
-    padding: 1em;
-    background-color: #F7F7F7;
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #999;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-color: #DADADA;
-    color: #666;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-  </style>
-</head>
-
-<body class="rails-default-error-page">
-  <!-- This file lives in public/500.html -->
-  <div class="dialog">
-    <div>
-      <h1>We're sorry, but something went wrong.</h1>
-    </div>
-    <p>If you are the application owner check the logs for more information.</p>
-  </div>
-</body>
+  <body>
+    <main class="container">
+      <p class="error-code" aria-hidden="true">500</p>
+      <p class="icon"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></p>
+      <h1>Something went wrong</h1>
+      <p>We're sorry, but something unexpected happened on our end. Try again in a moment.</p>
+      <div class="actions">
+        <a href="/" class="btn btn-primary"><i class="fas fa-house" aria-hidden="true"></i> Go Home</a>
+        <a href="javascript:location.reload()" class="btn btn-secondary"><i class="fas fa-rotate-right" aria-hidden="true"></i> Try Again</a>
+      </div>
+    </main>
+  </body>
 </html>

@@ -1,0 +1,21 @@
+<%#
+  Locals: title (required), subtitle, actions.
+
+  `actions` takes pre-captured markup, built with `capture { ... }` at the call
+  site, rather than a block: a partial rendered with plain `render` cannot
+  receive one, which is why the previous block_given? version never rendered
+  its actions at all.
+%>
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title"><%= title %></h1>
+    <% if local_assigns[:subtitle].present? %>
+      <p class="page-subtitle"><%= local_assigns[:subtitle] %></p>
+    <% end %>
+  </div>
+  <% if local_assigns[:actions].present? %>
+    <div class="page-header__actions">
+      <%= local_assigns[:actions] %>
+    </div>
+  <% end %>
+</div>

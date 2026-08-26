@@ -1,0 +1,52 @@
+<%#
+  Ownership is derived here so no caller can offer Edit/Delete on a collection
+  shared with the user but owned by someone else. Pass can_manage: to override.
+%>
+<% can_manage = local_assigns.key?(:can_manage) ? can_manage : collection_manageable?(collection) %>
+<% notes = collection.notes.to_a %>
+
+<article class="content-card">
+  <div class="content-card__body">
+    <div class="content-card__meta">
+      <span><%= icon 'folder' %> Collection</span>
+      <span><%= icon 'clock', style: :regular %> <%= time_ago(collection) %></span>
+    </div>
+
+    <h3 class="content-card__title"><%= link_to collection.title, collection, class: 'content-card__link' %></h3>
+
+    <div class="content-card__tags">
+      <span class="badge badge-neutral"><%= icon 'sticky-note' %> <%= pluralize(notes.size, 'note') %></span>
+      <% if collection.shares.any? %>
+        <span class="badge badge-shared"><%= icon 'share-nodes' %> Shared</span>
+      <% end %>
+    </div>
+
+    <% if notes.any? %>
+      <ul class="content-card__notes-preview">
+        <% notes.first(3).each do |note| %>
+          <li class="content-card__notes-preview-item">
+            <%= icon 'file-lines', style: :regular %> <%= truncate(note.title, length: 45) %>
+          </li>
+        <% end %>
+        <% if notes.size > 3 %>
+          <li class="content-card__notes-preview-more">+<%= notes.size - 3 %> more</li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <div class="content-card__footer">
+    <%= link_to collection, class: 'btn btn-sm btn-secondary' do %>
+      <%= icon 'eye' %> View
+    <% end %>
+    <% if can_manage %>
+      <%= link_to edit_collection_path(collection), class: 'btn btn-sm btn-secondary' do %>
+        <%= icon 'pen' %> Edit
+      <% end %>
+      <%= button_to collection_path(collection), method: :delete, class: 'btn btn-sm btn-danger',
+            form: { data: { turbo_confirm: "Delete “#{collection.title}”? The notes inside it are not deleted." } } do %>
+        <%= icon 'trash-can', style: :regular %> Delete
+      <% end %>
+    <% end %>
+  </div>
+</article>
