@@ -1,6 +1,14 @@
 require_relative "boot"
 
-require "rails/all"
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "action_view/railtie"
+require "action_cable/engine"
+require "sprockets/railtie"
+require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -21,6 +29,10 @@ module NotesApp
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
+    config.assets.cache = Pathname.new(
+      ENV.fetch("RUBYNOTES_ASSET_CACHE", File.join(Dir.tmpdir, "rubynotes-assets-cache"))
+    )
+
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
   end
