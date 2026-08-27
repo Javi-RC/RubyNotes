@@ -1,11 +1,19 @@
 require "test_helper"
 
 class NotesControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    post sessions_url, params: { name: users(:one).name, password: "password123" }
+  def sign_in(user)
+    post sessions_url, params: { name: user.name, password: "password123" }
   end
 
-  test "should get index" do
+  setup do
+    sign_in users(:one)
+  end
+
+  test "index is admin only" do
+    get notes_url
+    assert_redirected_to home_path
+
+    sign_in users(:admin)
     get notes_url
     assert_response :success
   end
@@ -19,7 +27,7 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_difference("Note.count") do
       post notes_url, params: { note: { title: "New Note", content: "Content" } }
     end
-    assert_redirected_to notes_owned_path
+    assert_redirected_to notes_owned_index_path
   end
 
   test "should show note" do
@@ -32,8 +40,55 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "cannot view a note belonging to someone else" do
+    get note_url(notes(:two))
+    assert_redirected_to notes_owned_index_path
+  end
+
+  test "cannot update a note belonging to someone else" do
+    patch note_url(notes(:two)), params: { note: { title: "Hijacked" } }
+    assert_redirected_to notes_owned_index_path
+    assert_equal "Another Note", notes(:two).reload.title
+  end
+
+  test "cannot delete a note belonging to someone else" do
+    assert_no_difference("Note.count") do
+      delete note_url(notes(:two))
+    end
+    assert_redirected_to notes_owned_index_path
+  end
+
+  test "owner can delete their own note" do
+    assert_difference("Note.count", -1) do
+      delete note_url(notes(:one))
+    end
+  end
+
+  test "a note shared with you is readable but not deletable" do
+    note = notes(:two)
+    note.shares << users(:one)
+    note.save!
+
+    get note_url(note)
+    assert_response :success
+
+    assert_no_difference("Note.count") do
+      delete note_url(note)
+    end
+    assert_redirected_to notes_owned_index_path
+  end
+
+  test "destructive buttons carry a Turbo confirmation" do
+    # Previously data-confirm, which Turbo ignores: every delete went through
+    # without asking. Asserted here rather than in a browser, where driving a
+    # native confirm dialog proved unreliable.
+    get note_url(notes(:one))
+    assert_select "form[data-turbo-confirm]", count: 1
+    assert_select "form[data-confirm]", count: 0
+  end
+
   test "should require login" do
-    reset_session!
+    reset!
     get notes_url
     assert_redirected_to new_session_path
   end

@@ -1,0 +1,15 @@
+<% if object.errors.any? %>
+  <%# tabindex -1 so the controller action can move focus here after a failed
+      submit; role=alert announces it to screen readers immediately. %>
+  <div class="alert alert-danger" role="alert" tabindex="-1" id="form-errors">
+    <%= icon 'exclamation-triangle' %>
+    <div>
+      <strong><%= pluralize(object.errors.count, 'error') %> prevented this from being saved:</strong>
+      <ul>
+        <% object.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

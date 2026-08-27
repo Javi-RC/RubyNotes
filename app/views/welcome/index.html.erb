@@ -1,33 +1,78 @@
-<div class="container my-5">
-  <div class="row align-items-center">
-    <div class="col-md-6">
-      <div class="jumbotron">
-        <h1 class="display-4">Welcome to NoteApp!</h1>
-        <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 1.25rem">
-        <p class="lead description">Project for Web Systems.</p>
-        <img src="https://cdn-icons-png.flaticon.com/512/5526/5526421.png" alt="NoteApp" class="noteapp-image">
-      </div>
-    </div>
+<% page_title 'Organize and Share Your Notes' %>
+<% content_for :page_description, 'RubyNotes helps you organize, share, and collaborate on notes with friends.' %>
 
-    <div class="col-md-6">
-      <div class="text-center">
-        <h2 class="mb-4">Start Now! <i class="fas fa-arrow-down"></i></h2>
-        <a href="sessions/new" class="btn btn-primary btn-lg btn-block mb-3">Login <i class="fas fa-sign-in-alt ml-1"></i></a>
-        <p class="h4">Are you new? <a href="users/new" class="text-secondary">Register Now <i class="fas fa-user-plus ml-1"></i></a></p>
-      </div>
+<nav class="landing-nav">
+  <div class="landing-nav__inner">
+    <%= link_to root_path, class: 'landing-nav__brand' do %>
+      <%= icon 'sticky-note' %>
+      RubyNotes
+    <% end %>
+    <div class="landing-nav__actions">
+      <%= link_to 'Sign in', new_session_path, class: 'btn btn-ghost' %>
+      <%= link_to 'Get started', new_user_path, class: 'btn btn-primary' %>
     </div>
   </div>
-</div>
+</nav>
 
-<footer class="bg-dark text-light py-4">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <p class="mb-0">Developed by Gonzalo Torres Aparricio (<a href="mailto:GonzaloTorres1@alu.uclm.es" class="text-light">GonzaloTorres1@alu.uclm.es</a>)</p>
+<main id="main-content">
+  <section class="landing-hero">
+    <h1 class="landing-hero__title">
+      Organize your notes.<br>
+      <span>Share them with friends.</span>
+    </h1>
+    <p class="landing-hero__subtitle">
+      RubyNotes helps you create, organize, and collaborate on notes. Keep your thoughts structured and share them with the people who matter.
+    </p>
+    <div class="landing-hero__actions">
+      <%= link_to new_user_path, class: 'btn btn-primary btn-lg' do %>
+        <%= icon 'rocket' %> Get Started Free
+      <% end %>
+      <%= link_to 'Sign in', new_session_path, class: 'btn btn-secondary btn-lg' %>
+    </div>
+  </section>
+
+  <section class="landing-features">
+    <h2 class="visually-hidden">Features</h2>
+    <div class="grid-3">
+      <div class="landing-feature-card">
+        <div class="stat-card__icon stat-card__icon--primary">
+          <%= icon 'sticky-note' %>
+        </div>
+        <div class="landing-feature-card__content">
+          <h3 class="landing-feature-card__title">Rich Notes</h3>
+          <p class="landing-feature-card__description">Create notes with rich text formatting, images, and lists.</p>
+        </div>
       </div>
-      <div class="col-md-6">
-        <p class="mb-0 text-md-end">Developed by Javier Rodriguez Castellano (<a href="mailto:javier.Rodriguez46@alu.uclm.es" class="text-light">javier.Rodriguez46@alu.uclm.es</a>)</p>
+
+      <div class="landing-feature-card">
+        <div class="stat-card__icon stat-card__icon--success">
+          <%= icon 'folder' %>
+        </div>
+        <div class="landing-feature-card__content">
+          <h3 class="landing-feature-card__title">Collections</h3>
+          <p class="landing-feature-card__description">Group related notes into collections for easy access.</p>
+        </div>
       </div>
+
+      <div class="landing-feature-card">
+        <div class="stat-card__icon stat-card__icon--warning">
+          <%= icon 'share-nodes' %>
+        </div>
+        <div class="landing-feature-card__content">
+          <h3 class="landing-feature-card__title">Share &amp; Collaborate</h3>
+          <p class="landing-feature-card__description">Share notes and collections with friends and colleagues.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="landing-footer">
+  <div class="landing-footer__inner">
+    <span class="landing-footer__brand">RubyNotes</span>
+    <div class="landing-footer__credits">
+      Developed by
+      <a href="mailto:javier.Rodriguez46@alu.uclm.es">Javier Rodriguez</a>
     </div>
   </div>
 </footer>

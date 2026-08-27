@@ -1,0 +1,14 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 121,
+      "check_name": "EOLRails",
+      "message": "Support for Rails 7.1.6 ended on 2025-10-01",
+      "file": "Gemfile.lock",
+      "note": "Known and tracked: upgrading Rails is its own piece of work, not something to bundle into an unrelated change. Acknowledged here so a genuine new finding still fails CI instead of being lost in the noise. Revisit when the app moves to a supported Rails."
+    }
+  ],
+  "brakeman_version": "8.0.6"
+}

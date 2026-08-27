@@ -1,0 +1,7 @@
+<div class="avatar-info">
+  <%= avatar_for(user, size: :lg) %>
+  <div>
+    <h2 class="section-title"><%= user.name %></h2>
+    <span class="badge badge-neutral"><%= user.role&.capitalize %></span>
+  </div>
+</div>

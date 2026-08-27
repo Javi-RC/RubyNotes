@@ -1,69 +1,44 @@
 <% if current_user %>
-  <%= render 'layouts/navbar' %>
-<% else %>
-  <nav class="navbar navbar-expand-lg navbar-light bg-color" style="padding: 20px 0; margin-bottom: 5rem;">
-    <div class="container">
-      <a class="navbar-brand nav-text" href="<%= root_path %>"><i class="fas fa-home"></i> Welcome Page!</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </div>
-  </nav>
-<% end %>
+  <%# Admin creating a user: render inside the app shell, not as an auth card. %>
+  <% page_title 'New User' %>
+  <% breadcrumb ['Administration'], ['All Users', users_path], ['New User'] %>
 
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="container">
-        <div class="card">
-          <div class="card-body">
-            <h2 class="card-title text-center mb-4 mt-4"><i class="fas fa-user-plus"></i> Register</h2>
-            <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
-            <%= form_with(model: @user, url: users_path, method: :post) do |form| %>
-              <% if @user.errors.any? %>
-                <div class="alert alert-danger">
-                  <ul>
-                    <% @user.errors.full_messages.each do |msg| %>
-                      <li><%= msg %></li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
-              <div class="form-group">
-                <%= form.label :name %>
-                <%= form.text_field :name, class: "form-control", required: true %>
-              </div>
-              <div class="form-group">
-                <%= form.label :password %>
-                <%= form.password_field :password, class: "form-control", required: true %>
-              </div>
-              <div class="form-group">
-                <%= form.label :password_confirmation %>
-                <%= form.password_field :password_confirmation, class: "form-control", required: true %>
-              </div>
-              <% if current_user&.role === 'admin' %>
-                <div class="form-group">
-                  <%= form.label :role %>
-                  <%= form.select :role, options_for_select([['User', 'user'], ['Admin', 'admin']], 'user'), { prompt: 'Select Role' }, class: 'form-control' %>
-                </div>
-              <% end %>
-              <div class="text-center">
-                <% if current_user %>
-                  <%= form.submit "Create User!", class: "btn btn-primary btn-block mt-4" %>
-                <% else %>
-                  <%= form.submit "Register", class: "btn btn-primary btn-block mt-4" %>
-                <% end %>
-              </div>
-            <% end %>
-            <% unless current_user %>
-              <div class="text-center mt-3">
-                <p>Do you have an account? 👇</p>
-                <%= link_to "Log in", new_session_path %>
-              </div>
-            <% end %>
-          </div>
-        </div>
+  <%= render 'shared/back_link', label: 'Back to users', back_path: users_path %>
+
+  <%= render layout: 'shared/form_card', locals: { title: 'New User', object: @user } do %>
+    <%= form_with(model: @user, url: users_path, method: :post) do |form| %>
+      <%= render 'users/form_fields', form: form %>
+      <div class="form-actions">
+        <%= form.submit 'Create User', class: 'btn btn-primary btn-lg' %>
+        <%= link_to 'Cancel', users_path, class: 'btn btn-ghost' %>
       </div>
+    <% end %>
+  <% end %>
+<% else %>
+  <% page_title 'Create account' %>
+
+  <div class="auth-card">
+    <div class="auth-card__brand">
+      <%= icon 'user-plus' %>
+      <h1>Create account</h1>
+      <p>Get started with RubyNotes</p>
+    </div>
+
+    <%= render 'shared/form_errors', object: @user %>
+
+    <%= form_with(model: @user, url: users_path, method: :post) do |form| %>
+      <%= render 'users/form_fields', form: form %>
+      <%= form.submit 'Create Account', class: 'btn btn-primary btn-lg' %>
+    <% end %>
+
+    <div class="auth-card__footer">
+      Already have an account? <%= link_to 'Sign in', new_session_path %>
+    </div>
+
+    <div class="auth-card__home-link">
+      <%= link_to root_path do %>
+        <%= icon 'arrow-left' %> Back to home
+      <% end %>
     </div>
   </div>
-</div>
+<% end %>

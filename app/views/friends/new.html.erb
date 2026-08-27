@@ -1,30 +1,35 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'Add Friend' %>
+<% breadcrumb ['Friends', friends_path], ['Add Friend'] %>
+
+<%= render 'shared/back_link', label: 'Back to friends', back_path: friends_path %>
+
+<%= render 'shared/page_header',
+      title: 'Find People',
+      subtitle: 'Send friend requests to other users' %>
+
+<div class="search-wrapper">
+  <%= render 'shared/search_input', placeholder: 'Search by username...' %>
+</div>
 
 <% if @users.any? %>
-  <div class="container mt-5">
-    <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
-    <div data-controller="filter">
-      <form class="d-flex mb-2">
-        <input class="form-control me-2" type="search" placeholder="Search by name" aria-label="Search" data-filter-target="input" data-action="input->filter#filter">
-      </form>
-      <div class="row">
-        <% @users.each do |user| %>
-          <div class="col-md-4 mb-4 user" data-filter-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= user.name %></h5>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to 'Add Friend', send_request_path(user), class: 'btn btn-success' %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
+  <div class="grid-cards">
+    <% @users.each do |user| %>
+      <%= render 'friends/friend_card', friend: user, mode: :candidate %>
+    <% end %>
   </div>
+
+  <%= render 'shared/pagination' %>
+<% elsif searching? %>
+  <%= render 'shared/empty_state',
+        icon: 'magnifying-glass', icon_style: :solid,
+        title: "No users match “#{search_query}”",
+        description: 'Try a different username.',
+        action_path: new_friend_path,
+        action_icon: 'times',
+        action_label: 'Clear search' %>
 <% else %>
-  <div class="container text-center mt-5">
-    <p style="font-size: 48px;"><i class="far fa-frown"></i> There is no registered user <i class="far fa-frown"></i></p>
-  </div>
+  <%= render 'shared/empty_state',
+        icon: 'users', icon_style: :solid,
+        title: 'No users available',
+        description: 'There are no other users to add as friends.' %>
 <% end %>

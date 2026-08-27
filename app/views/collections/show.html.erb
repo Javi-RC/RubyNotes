@@ -1,36 +1,38 @@
-<%= render 'layouts/navbar' %>
+<% page_title @collection.title %>
+<% breadcrumb ['My Collections', collections_owned_index_path], [@collection.title] %>
 
-<div class="container mt-5">
-  <div class="card shadow-sm">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Collection Details</h5>
-    </div>
-    <div class="card-body">
-      <div class="card-text">
-        <h5>Title: <%= @collection.title %></h5>
-        <hr>
-        <% if @collection.notes.any? %>
-          <h6>Notes:</h6>
-          <ul>
-            <% @collection.notes.each do |note| %>
-              <li><%= link_to sanitize(note.title), note_path(note) %></li>
-            <% end %>
-          </ul>
-        <% else %>
-          <p>No notes in this collection yet.</p>
-        <% end %>
-      </div>
-    </div>
-    <div class="card-footer d-flex align-items-center gap-2">
-      <%= link_to request.referer || root_path, class: 'back-button my-2' do %>
-        <i class="fas fa-arrow-left"></i> Back
-      <% end %>
-      <%= link_to edit_collection_path(@collection), class: 'btn btn-secondary' do %>
-        <i class="fas fa-edit"></i> Edit
-      <% end %>
-      <%= button_to collection_path(@collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-        <i class="fas fa-trash-alt"></i> Delete
+<%= render 'shared/back_link', label: 'Back to collections', back_path: collections_owned_index_path %>
+
+<%= render layout: 'shared/detail_card', locals: {
+      title: @collection.title,
+      meta: capture {
+        safe_join([
+          content_tag(:span, safe_join([icon('sticky-note'), " #{pluralize(@collection.notes.count, 'note')}"]), class: 'badge badge-neutral'),
+          content_tag(:span, safe_join([icon('clock', style: :regular), " #{time_ago(@collection)}"]), class: 'badge badge-neutral')
+        ])
+      },
+      actions: (collection_manageable?(@collection) ? capture {
+        safe_join([
+          link_to(edit_collection_path(@collection), class: 'btn btn-sm btn-secondary') { safe_join([icon('pen'), ' Edit']) },
+          button_to(collection_path(@collection), method: :delete, class: 'btn btn-sm btn-danger',
+                    form: { data: { turbo_confirm: "Delete “#{@collection.title}”? The notes inside it are not deleted." } }) {
+            safe_join([icon('trash-can', style: :regular), ' Delete'])
+          }
+        ])
+      } : nil)
+    } do %>
+
+  <% if @collection.notes.any? %>
+    <h3 class="section-heading">Notes in this collection</h3>
+    <div class="grid-cards">
+      <% @collection.notes.each do |note| %>
+        <%= render 'notes/note_card', note: note %>
       <% end %>
     </div>
-  </div>
-</div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'sticky-note',
+          title: 'No notes in this collection yet.',
+          description: collection_manageable?(@collection) ? 'Edit the collection to add notes to it.' : nil %>
+  <% end %>
+<% end %>

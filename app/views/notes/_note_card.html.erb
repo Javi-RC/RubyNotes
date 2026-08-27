@@ -1,0 +1,50 @@
+<%#
+  Ownership is derived here rather than passed in, so no caller can forget it
+  and offer Edit/Delete on someone else's note. Pass can_manage: to override.
+%>
+<% can_manage = local_assigns.key?(:can_manage) ? can_manage : note_manageable?(note) %>
+
+<article class="content-card">
+  <div class="content-card__body">
+    <div class="content-card__meta">
+      <% if note.user %>
+        <span><%= icon 'user' %> <%= note.user.name %></span>
+      <% end %>
+      <span><%= icon 'clock', style: :regular %> <%= time_ago(note) %></span>
+    </div>
+
+    <h3 class="content-card__title"><%= link_to note.title, note, class: 'content-card__link' %></h3>
+
+    <% if note.content.present? %>
+      <p class="content-card__preview"><%= truncate(strip_tags(note.content), length: 160, separator: ' ') %></p>
+    <% end %>
+
+    <% if note.collections.any? || note.shares.any? %>
+      <div class="content-card__tags">
+        <% note.collections.each do |collection| %>
+          <%= link_to collection_path(collection), class: 'badge badge-primary' do %>
+            <%= icon 'folder' %> <%= collection.title %>
+          <% end %>
+        <% end %>
+        <% if note.shares.any? %>
+          <span class="badge badge-shared"><%= icon 'share-nodes' %> Shared</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="content-card__footer">
+    <%= link_to note, class: 'btn btn-sm btn-secondary' do %>
+      <%= icon 'eye' %> View
+    <% end %>
+    <% if can_manage %>
+      <%= link_to edit_note_path(note), class: 'btn btn-sm btn-secondary' do %>
+        <%= icon 'pen' %> Edit
+      <% end %>
+      <%= button_to note_path(note), method: :delete, class: 'btn btn-sm btn-danger',
+            form: { data: { turbo_confirm: "Delete “#{note.title}”? This cannot be undone." } } do %>
+        <%= icon 'trash-can', style: :regular %> Delete
+      <% end %>
+    <% end %>
+  </div>
+</article>

@@ -1,83 +1,46 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'Dashboard' %>
+<% breadcrumb ['Dashboard'] %>
 
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <% if current_user %>
-      <h2>Welcome <%= current_user.name %></h2>
-      <% if current_user.role === 'admin' %>
-        <h2 class="mb-4"> Admin Board 📋 </h2>
-        <div class="col-md-4">
-          <div class="card text-center bg-color-card shadow mb-4">
-            <div class="card-body">
-              <h5 class="card-title">Users</h5>
-              <p class="card-text"><i class="fas fa-users fa-5x"></i></p>
-              <%= link_to "See All Users", users_path, class: 'btn btn-primary' %>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-center bg-color-card shadow mb-4">
-            <div class="card-body">
-              <h5 class="card-title">Notes</h5>
-              <p class="card-text"><i class="fas fa-sticky-note fa-5x"></i></p>
-              <%= link_to "See All Notes", notes_path, class: 'btn btn-primary' %>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-center bg-color-card shadow mb-4">
-            <div class="card-body">
-              <h5 class="card-title">Collections</h5>
-              <p class="card-text"><i class="fas fa-box fa-5x"></i></p>
-              <%= link_to "See All Collections", collections_path, class: 'btn btn-primary' %>
-            </div>
-          </div>
-        </div>
-        <hr class="border border-dark mt-4" style="height: 8px; background-color: black; margin-top: 4rem;">
-      <% end %>
-      <h2 class="mb-4"> User Board 📚 </h2>
-      <div class="col-md-4">
-        <div class="card text-center bg-color-card shadow mb-4">
-          <div class="card-body">
-            <h5 class="card-title">Notes</h5>
-            <p class="card-text"><i class="fas fa-sticky-note fa-5x"></i></p>
-            <%= link_to "See Notes", notes_owned_path, class: 'btn btn-primary' %>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-center bg-color-card shadow mb-4">
-          <div class="card-body">
-            <h5 class="card-title">Collections</h5>
-            <p class="card-text"><i class="fas fa-box fa-5x"></i></p>
-            <%= link_to "See Collections", collections_owned_path, class: 'btn btn-primary' %>
-          </div>
-        </div>
-      </div>
-      <div class="container mt-5">
-        <div class="row justify-content-center">
-          <div class="col-md-4">
-            <div class="card text-center bg-color-card shadow mb-4">
-              <div class="card-body">
-                <h5 class="card-title">Friends</h5>
-                <p class="card-text"><i class="fa-solid fa-user-group fa-5x"></i></p>
-                <%= link_to "See Friends", friends_path, class: 'btn btn-primary' %>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card text-center bg-color-card shadow mb-4">
-              <div class="card-body">
-                <h5 class="card-title">Delete Account</h5>
-                <p class="card-text"><i class="fas fa-user-times fa-5x"></i></p>
-                <%= button_to user_path(@user), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-                  <i class="fas fa-trash-alt"></i> Delete
-                <% end %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
+<%= render 'shared/page_header',
+      title: "Welcome, #{current_user.name}",
+      subtitle: "Here's an overview of your content",
+      actions: capture {
+        safe_join([
+          link_to(new_note_path, class: 'btn btn-primary') { safe_join([icon('plus'), ' New Note']) },
+          link_to(new_collection_path, class: 'btn btn-secondary') { safe_join([icon('folder-plus'), ' New Collection']) }
+        ])
+      } %>
+
+<section aria-labelledby="your-content-heading">
+  <h2 class="visually-hidden" id="your-content-heading">Your content</h2>
+  <div class="grid-3">
+    <%= render 'home/stat_card', path: notes_owned_index_path, tone: 'primary',
+          icon_name: 'sticky-note', value: current_user.notes.count, label: 'My Notes' %>
+    <%= render 'home/stat_card', path: collections_owned_index_path, tone: 'success',
+          icon_name: 'folder', value: current_user.collections.count, label: 'My Collections' %>
+    <%= render 'home/stat_card', path: friends_path, tone: 'warning',
+          icon_name: 'user-friends', value: current_user.friends.count, label: 'Friends' %>
   </div>
-</div>
+</section>
+
+<% if current_user.admin? %>
+  <div class="divider"></div>
+
+  <section aria-labelledby="administration-heading">
+    <div class="page-header">
+      <div class="page-header__left">
+        <h2 class="section-title" id="administration-heading">Administration</h2>
+        <p class="page-subtitle">Manage all platform content</p>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <%= render 'home/stat_card', path: users_path, tone: 'primary',
+            icon_name: 'users', value: @total_users, label: 'All Users' %>
+      <%= render 'home/stat_card', path: notes_path, tone: 'success',
+            icon_name: 'file-lines', value: @total_notes, label: 'All Notes' %>
+      <%= render 'home/stat_card', path: collections_path, tone: 'warning',
+            icon_name: 'box', value: @total_collections, label: 'All Collections' %>
+    </div>
+  </section>
+<% end %>

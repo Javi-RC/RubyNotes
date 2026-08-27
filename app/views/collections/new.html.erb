@@ -1,45 +1,41 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'Create Collection' %>
+<% breadcrumb ['My Collections', collections_owned_index_path], ['New Collection'] %>
 
-<%= form_with(model: Collection.new, local: true) do |form| %>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-8 mx-auto">
-        <div class="card collection-form">
-          <h1 class="text-center nav-text">
-            <i class="fas fa-edit"></i> Create Collection
-          </h1>
-          <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
-          <div class="card-body">
-            <div class="field">
-              <%= form.text_field :title, class: "form-control", placeholder: "Enter title" %>
-            </div>
-            <div class="field">
-              <br>
-              <label>Select notes to add:</label>
-              <br>
-              <br>
-              <% if @notes.any? %>
-                <% @notes.each do |note| %>
-                  <div class="form-check">
-                    <%= check_box_tag "collection[note_ids][]", note.id, false, class: "form-check-input" %>
-                    <%= label_tag "collection_note_#{note.id}", sanitize(note.title), class: "form-check-label" %>
-                  </div>
-                <% end %>
-              <% else %>
-                <p>You don't have any notes!</p>
-              <% end %>
-            </div>
-            <div class="actions text-center mt-3">
-              <%= form.submit 'Create Collection 📦', class: "btn btn-success btn-block nav-text" %>
-            </div>
+<%= render 'shared/back_link', label: 'Back to collections', back_path: collections_owned_index_path %>
+
+<%= render layout: 'shared/form_card', locals: { title: 'New Collection', object: @collection } do %>
+  <%= form_with(model: @collection, local: true) do |form| %>
+    <div class="form-group">
+      <%= form.label :title, 'Title', class: 'form-label' %>
+      <%= form.text_field :title, class: 'form-control', required: true, autofocus: true,
+            'aria-describedby': 'collection-title-hint' %>
+      <p class="form-hint" id="collection-title-hint">For example “Recipes” or “Q3 planning”.</p>
+    </div>
+
+    <% if @notes.any? %>
+      <fieldset class="form-section">
+        <legend class="form-section__title">Add notes</legend>
+        <% @notes.each do |note| %>
+          <div class="form-check">
+            <%= check_box_tag 'collection[note_ids][]', note.id, false,
+                  class: 'form-check-input', id: "collection_note_#{note.id}" %>
+            <%= label_tag "collection_note_#{note.id}", note.title, class: 'form-check-label' %>
           </div>
-        </div>
-        <div class="text-center mt-3">
-          <%= link_to (request.referer || root_path), class: 'back-button text-center' do %>
-            <i class="fas fa-arrow-left"></i> Back
-          <% end %>
+        <% end %>
+      </fieldset>
+    <% else %>
+      <div class="alert alert-primary" role="status">
+        <%= icon 'info-circle' %>
+        <div>
+          You don't have any notes yet. <%= link_to 'Create a note first', new_note_path %> — you can also
+          create the collection now and add notes to it later.
         </div>
       </div>
+    <% end %>
+
+    <div class="form-actions">
+      <%= form.submit 'Create Collection', class: 'btn btn-primary btn-lg' %>
+      <%= link_to 'Cancel', collections_owned_index_path, class: 'btn btn-ghost' %>
     </div>
-  </div>
+  <% end %>
 <% end %>

@@ -1,0 +1,32 @@
+<%#
+  Renders nothing for a single page. Prev/next are <span>s when unavailable,
+  never dead links, so keyboard users never land on an inert control.
+%>
+<% if @total_pages.to_i > 1 %>
+  <nav class="pagination" aria-label="Pagination">
+    <% if @page > 1 %>
+      <%= link_to query_url(page: @page - 1), class: 'pagination__link', rel: 'prev' do %>
+        <%= icon 'chevron-left' %> <span>Previous</span>
+      <% end %>
+    <% else %>
+      <span class="pagination__link pagination__link--disabled" aria-disabled="true">
+        <%= icon 'chevron-left' %> <span>Previous</span>
+      </span>
+    <% end %>
+
+    <span class="pagination__status" aria-live="polite">
+      Page <%= @page %> of <%= @total_pages %>
+      <span class="pagination__count">(<%= pluralize(@total_count, 'result') %>)</span>
+    </span>
+
+    <% if @page < @total_pages %>
+      <%= link_to query_url(page: @page + 1), class: 'pagination__link', rel: 'next' do %>
+        <span>Next</span> <%= icon 'chevron-right' %>
+      <% end %>
+    <% else %>
+      <span class="pagination__link pagination__link--disabled" aria-disabled="true">
+        <span>Next</span> <%= icon 'chevron-right' %>
+      </span>
+    <% end %>
+  </nav>
+<% end %>

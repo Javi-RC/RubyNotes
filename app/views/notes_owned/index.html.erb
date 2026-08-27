@@ -1,105 +1,52 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'My Notes' %>
+<% breadcrumb ['My Notes'] %>
 
-<div class="container mt-5">
-  <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
+<%= render 'shared/page_header',
+      title: 'My Notes',
+      subtitle: 'Notes you own and notes shared with you',
+      actions: capture {
+        link_to new_note_path, class: 'btn btn-primary' do
+          safe_join([icon('plus'), ' New Note'])
+        end
+      } %>
 
-  <div data-controller="filter">
-    <form class="d-flex mb-2">
-      <input class="form-control me-2" type="search" placeholder="Search by title" aria-label="Search" data-filter-target="input" data-action="input->filter#filter">
-    </form>
+<%= render 'shared/tabs', label: 'Note ownership', current: @tab, tabs: [
+      { key: 'owned', label: 'My Notes', icon: 'user', count: @owned_count },
+      { key: 'shared', label: 'Shared with Me', icon: 'share-nodes', count: @shared_count }
+    ] %>
 
-    <div class="row">
-      <% if @notes.any? || @sharednotes.any? %>
-        <% @notes.each do |note| %>
-          <div class="col-md-4 mb-4" data-filter-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= note.title %></h5>
-                <hr class="my-4 border border-dark">
-                <div class="card-text note-content">
-                  <% if note.content.present? %>
-                    <div style="max-width: 500px; max-height: 500px; overflow: auto;">
-                      <%= sanitize(note.content) %>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to note, class: 'btn btn-primary mr-2' do %>
-                  <i class="fas fa-eye"></i> Show
-                <% end %>
-                <%= link_to edit_note_path(note), class: 'btn btn-info', title: 'Share' do %>
-                  <i class="fas fa-share"></i> Share
-                <% end %>
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <%= link_to edit_note_path(note), class: 'dropdown-item' do %>
-                      <i class="fas fa-edit"></i> Edit
-                    <% end %>
-                    <%= link_to edit_note_path(note), class: 'dropdown-item' do %>
-                      <i class="fas fa-plus"></i> Add to Collection
-                    <% end %>
-                    <%= button_to note_path(note), method: :delete, class: 'dropdown-item', data: { confirm: 'Are you sure?' } do %>
-                      <i class="fas fa-trash-alt"></i> Delete
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% end %>
-
-        <% @sharednotes.each do |note| %>
-          <div class="col-md-4 mb-4" data-filter-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= note.title %></h5>
-                <hr class="my-4 border border-dark">
-                <div class="card-text note-content">
-                  <% if note.content.present? %>
-                    <div style="max-width: 500px; max-height: 500px; overflow: auto;">
-                      <%= sanitize(note.content) %>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to note, class: 'btn btn-primary mr-2' do %>
-                  <i class="fas fa-eye"></i> Show
-                <% end %>
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <%= link_to edit_note_path(note), class: 'dropdown-item' do %>
-                      <i class="fas fa-edit"></i> Edit
-                    <% end %>
-                    <%= link_to edit_note_path(note), class: 'dropdown-item' do %>
-                      <i class="fas fa-plus"></i> Add to Collection
-                    <% end %>
-                    <%= button_to note_path(note), method: :delete, class: 'dropdown-item', data: { confirm: 'Are you sure?' } do %>
-                      <i class="fas fa-trash-alt"></i> Delete
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-  <% else %>
-    <div class="container text-center mt-5">
-      <p style="font-size: 48px;"><i class="far fa-frown"></i> You don't have any notes! <i class="far fa-frown"></i></p>
-
-      <%= link_to new_note_path, class: 'btn btn-success btn-lg' do %>
-        <i class="fas fa-pencil-alt"></i> Start now!
-      <% end %>
-    </div>
-  <% end %>
+<div class="search-wrapper">
+  <%= render 'shared/search_input',
+        placeholder: 'Search notes by title...',
+        carry: { tab: @tab } %>
 </div>
+
+<% if @notes.any? %>
+  <div class="grid-cards">
+    <% @notes.each do |note| %>
+      <%= render 'notes/note_card', note: note, owned: @tab == 'owned' %>
+    <% end %>
+  </div>
+
+  <%= render 'shared/pagination' %>
+<% elsif searching? %>
+  <%= render 'shared/empty_state',
+        icon: 'magnifying-glass', icon_style: :solid,
+        title: "No notes match “#{search_query}”",
+        description: 'Try a different search term.',
+        action_path: notes_owned_index_path(tab: @tab),
+        action_icon: 'times',
+        action_label: 'Clear search' %>
+<% elsif @tab == 'shared' %>
+  <%= render 'shared/empty_state',
+        icon: 'share-nodes', icon_style: :solid,
+        title: 'No shared notes',
+        description: 'When someone shares a note with you, it will appear here.' %>
+<% else %>
+  <%= render 'shared/empty_state',
+        icon: 'sticky-note',
+        title: 'No notes yet',
+        description: 'Create your first note to get started.',
+        action_path: new_note_path,
+        action_label: 'Create Note' %>
+<% end %>

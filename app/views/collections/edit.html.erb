@@ -1,69 +1,46 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'Edit Collection' %>
+<% breadcrumb ['My Collections', collections_owned_index_path], [@collection.title, @collection], ['Edit'] %>
 
-<br>
+<%= render 'shared/back_link', label: 'Back to collection', back_path: collection_path(@collection) %>
 
-<%= form_for(@collection, url: collection_path(@collection), method: :patch, local: true) do |form| %>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-8 mx-auto">
-        <div class="card collection-form">
-          <h1 class="text-center nav-text mt-4">
-            <i class="fas fa-edit"></i> Edit Collection
-          </h1>
-          <hr class="border border-dark" style="height: 8px; background-color: black; margin-bottom: 3rem">
-          <div class="card-body">
-            <div class="field">
-              <label>Tittle:</label>
-              <%= form.text_field :title, class: "form-control", placeholder: "Enter title" %>
-            </div>
-            <div class="field">
-              <br>
-              <label>Select notes for the collection:</label>
-              <br>
-              <br>
-              <% if @notes.any? || @collection_notes.any? %>
-                <% @notes.each do |note| %>
-                  <div class="form-check">
-                    <%= check_box_tag "collection[note_ids][]", note.id, @collection.notes.include?(note), class: "form-check-input" %>
-                    <%= label_tag "collection_note_#{note.id}", sanitize(note.title), class: "form-check-label" %>
-                  </div>
-                <% end %>
-                <% @collection_notes.each do |note| %>
-                  <div class="form-check">
-                    <%= check_box_tag "collection[note_ids][]", note.id, @collection.notes.include?(note), class: "form-check-input" %>
-                    <%= label_tag "collection_note_#{note.id}", sanitize(note.title), class: "form-check-label" %>
-                  </div>
-                <% end %>
-              <% else %>
-                <p>You don't have any notes!</p>
-              <% end %>
-              <br>
-              <% if current_user == @collection.user %>
-                <label>Share with:</label>
-                <br>
-                <% if @friends.any? %>
-                  <% @friends.each do |friend| %>
-                    <div class="form-check">
-                      <%= check_box_tag "collection[share_ids][]", friend.id, @collection.shares.include?(friend), class: "form-check-input" %>
-                      <%= label_tag "note_friend_#{friend.id}", sanitize(friend.name), class: "form-check-label" %>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <p>You don't have any friends!</p>
-                <% end %>
-              <% end %>
-            </div>
-            <div class="actions text-center mt-3">
-              <%= form.submit 'Update Collection 🖋', class: "btn btn-success btn-block nav-text" %>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-3">
-          <%= link_to request.referer, class: 'back-button text-center' do %>
-            <i class="fas fa-arrow-left"></i> Back
-          <% end %>
-        </div>
-      </div>
+<%= render layout: 'shared/form_card', locals: { title: "Edit: #{@collection.title}", object: @collection } do %>
+  <%= form_with(model: @collection, url: collection_path(@collection), method: :patch, local: true) do |form| %>
+    <div class="form-group">
+      <%= form.label :title, 'Title', class: 'form-label' %>
+      <%= form.text_field :title, class: 'form-control', required: true %>
     </div>
-  </div>
+
+    <% all_notes = (@notes + @collection_notes).uniq %>
+    <% if all_notes.any? %>
+      <fieldset class="form-section">
+        <legend class="form-section__title">Notes in this collection</legend>
+        <% all_notes.each do |note| %>
+          <div class="form-check">
+            <%= check_box_tag 'collection[note_ids][]', note.id, @collection.notes.include?(note),
+                  class: 'form-check-input', id: "collection_note_#{note.id}" %>
+            <%= label_tag "collection_note_#{note.id}", note.title, class: 'form-check-label' %>
+          </div>
+        <% end %>
+      </fieldset>
+    <% end %>
+
+    <% if current_user == @collection.user && @friends.any? %>
+      <fieldset class="form-section">
+        <legend class="form-section__title">Share with friends</legend>
+        <p class="form-hint">Sharing a collection also shares the notes inside it, once the request is accepted.</p>
+        <% @friends.each do |friend| %>
+          <div class="form-check">
+            <%= check_box_tag 'collection[share_ids][]', friend.id, @collection.shares.include?(friend),
+                  class: 'form-check-input', id: "collection_friend_#{friend.id}" %>
+            <%= label_tag "collection_friend_#{friend.id}", friend.name, class: 'form-check-label' %>
+          </div>
+        <% end %>
+      </fieldset>
+    <% end %>
+
+    <div class="form-actions">
+      <%= form.submit 'Update Collection', class: 'btn btn-primary btn-lg' %>
+      <%= link_to 'Cancel', collection_path(@collection), class: 'btn btn-ghost' %>
+    </div>
+  <% end %>
 <% end %>

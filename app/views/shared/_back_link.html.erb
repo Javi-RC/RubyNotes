@@ -1,0 +1,6 @@
+<%# back_path is required: :back depends on the Referer header and silently
+    sends people off-site or in circles. Every caller passes an explicit path. %>
+<%= link_to back_path, class: 'back-link' do %>
+  <%= icon 'arrow-left' %>
+  <%= local_assigns.fetch(:label, 'Back') %>
+<% end %>

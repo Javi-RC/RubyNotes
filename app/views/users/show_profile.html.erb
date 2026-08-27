@@ -1,0 +1,59 @@
+<% page_title 'My Profile' %>
+<% breadcrumb ['Profile'] %>
+
+<%= render 'shared/back_link', label: 'Back to dashboard', back_path: home_path %>
+
+<%= render layout: 'shared/detail_card', locals: {
+      title: @user.name,
+      heading: capture { render 'users/profile_heading', user: @user },
+      actions: capture {
+        safe_join([
+          link_to(edit_user_path(@user), class: 'btn btn-sm btn-secondary') { safe_join([icon('pen'), ' Edit Profile']) },
+          button_to(user_path(@user), method: :delete, class: 'btn btn-sm btn-danger',
+                    form: { data: { turbo_confirm: 'Delete your account? Your notes and collections will be transferred to someone they are shared with, or permanently deleted. This cannot be undone.' } }) {
+            safe_join([icon('trash-can', style: :regular), ' Delete Account'])
+          }
+        ])
+      }
+    } do %>
+
+  <div class="grid-2 mb-6">
+    <%= render 'home/stat_card', path: notes_owned_index_path, tone: 'primary',
+          icon_name: 'sticky-note', value: @user.notes.count, label: 'Notes' %>
+    <%= render 'home/stat_card', path: collections_owned_index_path, tone: 'success',
+          icon_name: 'folder', value: @user.collections.count, label: 'Collections' %>
+  </div>
+
+  <% if @user.notes.any? %>
+    <div class="section-heading-row">
+      <h3 class="section-heading">Recent notes</h3>
+      <%= link_to 'View all', notes_owned_index_path, class: 'btn btn-ghost btn-sm' %>
+    </div>
+    <div class="grid-cards mb-6">
+      <% @user.notes.limit(3).each do |note| %>
+        <%= render 'notes/note_card', note: note %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @user.collections.any? %>
+    <div class="section-heading-row">
+      <h3 class="section-heading">Recent collections</h3>
+      <%= link_to 'View all', collections_owned_index_path, class: 'btn btn-ghost btn-sm' %>
+    </div>
+    <div class="grid-cards">
+      <% @user.collections.limit(3).each do |collection| %>
+        <%= render 'collections/collection_card', collection: collection %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @user.notes.empty? && @user.collections.empty? %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'folder-open',
+          title: 'Nothing here yet',
+          description: 'Create your first note to get started.',
+          action_path: new_note_path,
+          action_label: 'Create Note' %>
+  <% end %>
+<% end %>

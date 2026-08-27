@@ -1,0 +1,33 @@
+<%#
+  mode: :friend   -> existing friend (View profile / Remove)
+        :candidate -> someone you can send a request to
+%>
+<% mode = local_assigns.fetch(:mode, :friend) %>
+
+<article class="content-card">
+  <div class="content-card__body">
+    <div class="avatar-info">
+      <%= avatar_for(friend, size: :md) %>
+      <div>
+        <h3 class="content-card__title"><%= friend.name %></h3>
+        <span class="badge badge-neutral"><%= pluralize(friend.notes.count, 'note') %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card__footer">
+    <% if mode == :friend %>
+      <%= link_to see_friend_path(friend), class: 'btn btn-sm btn-secondary' do %>
+        <%= icon 'eye' %> View Profile
+      <% end %>
+      <%= button_to remove_friend_path(friend), method: :delete, class: 'btn btn-sm btn-danger',
+            form: { data: { turbo_confirm: "Remove #{friend.name} from your friends? Notes shared between you will no longer be accessible." } } do %>
+        <%= icon 'user-minus' %> Remove
+      <% end %>
+    <% else %>
+      <%= button_to send_request_path(friend), method: :post, class: 'btn btn-sm btn-primary' do %>
+        <%= icon 'user-plus' %> Send Friend Request
+      <% end %>
+    <% end %>
+  </div>
+</article>

@@ -1,0 +1,29 @@
+<%#
+  Locals: title (required), heading, meta, actions.
+
+  Render this with `render layout: 'shared/detail_card'` and a block holding
+  the card body; a plain `render` cannot pass one. `meta` and `actions` take
+  pre-captured markup, built with `capture` at the call site.
+%>
+<div class="card card--detail">
+  <div class="card-header card-detail__header">
+    <div class="card-detail__heading">
+      <%# `heading` replaces the plain title when the header needs richer
+          markup, e.g. an avatar beside the name. %>
+      <% if local_assigns[:heading].present? %>
+        <%= local_assigns[:heading] %>
+      <% else %>
+        <h2 class="section-title"><%= title %></h2>
+      <% end %>
+      <% if local_assigns[:meta].present? %>
+        <div class="card-detail__meta"><%= local_assigns[:meta] %></div>
+      <% end %>
+    </div>
+    <% if local_assigns[:actions].present? %>
+      <div class="detail-actions"><%= local_assigns[:actions] %></div>
+    <% end %>
+  </div>
+  <div class="card-body">
+    <%= yield %>
+  </div>
+</div>

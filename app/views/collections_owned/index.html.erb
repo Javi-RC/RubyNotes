@@ -1,90 +1,53 @@
-<%= render 'layouts/navbar' %>
+<% page_title 'My Collections' %>
+<% breadcrumb ['My Collections'] %>
 
-<div class="container mt-5">
-  <hr class="border border-dark" style="height: 8px; background-color: black">
-  <div data-controller="filter">
-    <form class="d-flex mb-2">
-      <input class="form-control me-2" type="search" placeholder="Search by title" aria-label="Search" data-filter-target="input" data-action="input->filter#filter">
-    </form>
-    <div class="row">
-      <% if @collections.any? %>
-        <% @collections.each do |collection| %>
-          <div class="col-md-4 mb-4 collection" data-filter-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= collection.title %></h5>
-                <hr class="my-4 border border-dark">
-                <div class="card-text collection-notes">
-                  <% if collection.notes.any? %>
-                    <% collection.notes.each do |note| %>
-                      <p><%= truncate(sanitize(note.title), length: 50) %></p>
-                    <% end %>
-                  <% else %>
-                    <p>No notes in this collection yet.</p>
-                  <% end %>
-                </div>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to collection, class: 'btn btn-primary mr-2' do %>
-                  <i class="fas fa-eye"></i> Show
-                <% end %>
-                <%= link_to edit_collection_path(collection), class: 'btn btn-secondary' do %>
-                  <i class="fas fa-edit"></i> Edit
-                <% end %>
-                <%= link_to edit_collection_path(collection), class: 'btn btn-primary mr-2' do %>
-                  <i class="fa-solid fa-share-nodes"></i> Share
-                <% end %>
-                <%= button_to collection_path(collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-                  <i class="fas fa-trash-alt"></i> Delete
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
+<%= render 'shared/page_header',
+      title: 'My Collections',
+      subtitle: 'Organize your notes into collections',
+      actions: capture {
+        link_to new_collection_path, class: 'btn btn-primary' do
+          safe_join([icon('plus'), ' New Collection'])
+        end
+      } %>
 
-      <% if @sharedcollections.any? %>
-        <% @sharedcollections.each do |collection| %>
-          <div class="col-md-4 mb-4 collection" data-filter-target="item">
-            <div class="card bg-color-card">
-              <div class="card-body">
-                <h5 class="card-title"><%= collection.title %></h5>
-                <hr class="my-4 border border-dark">
-                <div class="card-text collection-notes">
-                  <% if collection.notes.any? %>
-                    <% collection.notes.each do |note| %>
-                      <p><%= truncate(sanitize(note.title), length: 50) %></p>
-                    <% end %>
-                  <% else %>
-                    <p>No notes in this collection yet.</p>
-                  <% end %>
-                </div>
-              </div>
-              <div class="card-footer d-flex align-items-center gap-2">
-                <%= link_to collection, class: 'btn btn-primary mr-2' do %>
-                  <i class="fas fa-eye"></i> Show
-                <% end %>
-                <%= link_to edit_collection_path(collection), class: 'btn btn-secondary' do %>
-                  <i class="fas fa-edit"></i> Edit
-                <% end %>
-                <%= button_to collection_path(collection), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' } do %>
-                  <i class="fas fa-trash-alt"></i> Delete
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  </div>
+<%= render 'shared/tabs', label: 'Collection ownership', current: @tab, tabs: [
+      { key: 'owned', label: 'My Collections', icon: 'user', count: @owned_count },
+      { key: 'shared', label: 'Shared with Me', icon: 'share-nodes', count: @shared_count }
+    ] %>
+
+<div class="search-wrapper">
+  <%= render 'shared/search_input',
+        placeholder: 'Search collections by title...',
+        carry: { tab: @tab } %>
 </div>
 
-<% if !@collections.any? && !@sharedcollections.any? %>
-  <div class="container text-center mt-5">
-    <p style="font-size: 48px;"><i class="far fa-frown"></i> You don't have any collections! <i class="far fa-frown"></i></p>
-    <hr class="border border-dark mt-5" style="height: 8px; background-color: black; margin-bottom: 3rem">
-    <%= link_to new_collection_path, class: 'btn btn-success btn-lg' do %>
-      <i class="fas fa-box"></i> Create your first collection!
+<% if @collections.any? %>
+  <div class="grid-cards">
+    <% @collections.each do |collection| %>
+      <%= render 'collections/collection_card', collection: collection %>
     <% end %>
   </div>
+
+  <%= render 'shared/pagination' %>
+<% elsif searching? %>
+  <%= render 'shared/empty_state',
+        icon: 'magnifying-glass', icon_style: :solid,
+        title: "No collections match “#{search_query}”",
+        description: 'Try a different search term.',
+        action_path: collections_owned_index_path(tab: @tab),
+        action_icon: 'times',
+        action_label: 'Clear search' %>
+<% elsif @tab == 'shared' %>
+  <%= render 'shared/empty_state',
+        icon: 'share-nodes', icon_style: :solid,
+        title: 'No shared collections',
+        description: 'When someone shares a collection with you, it will appear here.' %>
+<% else %>
+  <%= render 'shared/empty_state',
+        icon: 'folder',
+        title: 'No collections yet',
+        description: 'Create a collection to organize your notes.',
+        action_path: new_collection_path,
+        action_icon: 'folder-plus',
+        action_label: 'Create Collection' %>
 <% end %>

@@ -1,0 +1,26 @@
+<%#
+  Server-side search: a GET form back to the current path. `carry` re-submits
+  params that must survive the search (the active tab); `page` is dropped on
+  purpose so a new query starts at page 1.
+%>
+<% placeholder = local_assigns.fetch(:placeholder, 'Search...') %>
+<% carry = local_assigns.fetch(:carry, {}) %>
+
+<%= form_with url: request.path, method: :get, class: 'search-input', data: { turbo_action: 'advance' } do %>
+  <% carry.each do |name, value| %>
+    <%= hidden_field_tag name, value, id: nil %>
+  <% end %>
+
+  <label class="visually-hidden" for="search-q"><%= placeholder %></label>
+  <%= icon 'search', css_class: 'search-input__icon' %>
+  <%= search_field_tag :q, search_query, id: 'search-q', class: 'search-input__field',
+        placeholder: placeholder, autocomplete: 'off' %>
+
+  <% if searching? %>
+    <%= link_to query_url(q: nil, page: nil), class: 'search-input__clear', 'aria-label': 'Clear search' do %>
+      <%= icon 'times' %>
+    <% end %>
+  <% end %>
+
+  <button type="submit" class="visually-hidden">Search</button>
+<% end %>

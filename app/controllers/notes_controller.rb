@@ -1,16 +1,19 @@
 class NotesController < ApplicationController
-  before_action :require_login, except: []
-  before_action :set_note, only: [:show, :edit, :update, :destroy]
-  before_action :authorize_note_owner!, only: [:show, :edit]
+  include Paginatable
+
+  before_action :require_login
+  # #index lists every note on the platform; it is only reachable from the
+  # sidebar's Administration section and was previously open to any user.
+  before_action :require_admin, only: %i[index]
+  before_action :set_note, only: %i[show edit update destroy]
+  before_action :authorize_note_owner!, only: %i[show edit update]
+  before_action :authorize_note_manager!, only: %i[destroy]
 
   def index
-    @notes = Note.all
-    @notifications = Notification.where(receiver_id: current_user.id, status: "pending")
+    @notes = paginate(search_scope(Note.all))
   end
 
-  def show
-    @myroute = session[:myroute]
-  end
+  def show; end
 
   def new
     @note = Note.new
@@ -19,7 +22,6 @@ class NotesController < ApplicationController
   end
 
   def edit
-    @myroute = session[:myroute]
     @user = current_user
     @collections = @user.collections
     @note_collections = @note.collections.reject { |c| @collections.include?(c) }
@@ -28,14 +30,13 @@ class NotesController < ApplicationController
   end
 
   def create
-    @myroute = session[:myroute]
     collection_ids = params[:note][:collection_ids]&.map { |id| BSON::ObjectId(id) } || []
 
     @note = Note.new(note_params.merge(collection_ids: collection_ids))
     @note.user = current_user
 
     if @note.save
-      redirect_to notes_owned_path, notice: "Note was successfully created."
+      redirect_to notes_owned_index_path, notice: "Note was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -49,16 +50,15 @@ class NotesController < ApplicationController
     create_revoke_notifications(old_shares_ids, new_shares_ids)
 
     if @note.update(note_params.merge(share_ids: old_shares_ids))
-      redirect_to notes_owned_path, notice: "Note was successfully updated."
+      redirect_to notes_owned_index_path, notice: "Note was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @myroute = session[:myroute]
     @note.destroy
-    redirect_to notes_owned_path, notice: "Note was successfully destroyed."
+    redirect_to notes_owned_index_path, notice: "Note was successfully destroyed."
   end
 
   private

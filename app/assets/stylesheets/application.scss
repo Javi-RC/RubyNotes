@@ -1,135 +1,2358 @@
-@import "bootstrap";
+// =============================================================================
+// RubyNotes Design System
+//
+// Self-contained: no Bootstrap. Colour and shadow tokens are CSS custom
+// properties so the theme can change at runtime; everything dimensional
+// (spacing, radii, breakpoints, timings) stays a Sass variable, since those
+// never vary by theme and media queries cannot read custom properties.
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// SCALES (Sass — compile-time only)
+// ---------------------------------------------------------------------------
+
+$spacer-1: 0.25rem;
+$spacer-2: 0.5rem;
+$spacer-3: 0.75rem;
+$spacer-4: 1rem;
+$spacer-5: 1.5rem;
+$spacer-6: 2rem;
+$spacer-8: 3rem;
+$spacer-10: 4rem;
+
+$radius-sm: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$radius-xl: 1rem;
+$radius-full: 9999px;
+
+$sidebar-width: 260px;
+$topbar-height: 64px;
+$content-max-width: 1200px;
+
+$z-sidebar: 1020;
+$z-topbar: 1010;
+$z-dropdown: 1000;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-toast: 1080;
+
+$transition-fast: 150ms ease;
+$transition-base: 200ms ease;
+
+// Breakpoints — previously hardcoded in ~15 places.
+$bp-sm: 575.98px;
+$bp-md: 767.98px;
+$bp-lg: 991.98px;
+
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+// System monospace on purpose: no webfont is loaded for it.
+$font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+// ---------------------------------------------------------------------------
+// COLOUR TOKENS — light theme
+//
+// Named by role, not by shade, so the dark theme can remap them coherently.
+// ---------------------------------------------------------------------------
+
+:root {
+  // Brand
+  --brand: #2563EB;
+  --brand-hover: #1D4ED8;
+  --brand-soft: #EFF6FF;      // tinted background
+  --brand-subtle: #DBEAFE;    // tinted border
+  --brand-text: #1E40AF;      // text on --brand-soft
+  --on-brand: #FFFFFF;        // text on --brand
+
+  // Surfaces
+  --bg-app: #F9FAFB;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F9FAFB;       // card footers, hovered rows
+  --bg-muted: #F3F4F6;        // neutral chips, ghost hover
+
+  // Text
+  --text-primary: #111827;
+  --text-body: #1F2937;
+  --text-secondary: #4B5563;
+  --text-muted: #57606F;      // darkened from #6B7280 to clear 4.5:1 on white
+  --text-faint: #6B7280;
+
+  // Borders
+  --border-default: #E5E7EB;
+  --border-strong: #D1D5DB;
+
+  // Semantic
+  --success: #047857;
+  --success-soft: #ECFDF5;
+  --success-border: #A7F3D0;
+  --success-text: #065F46;
+  --on-success: #FFFFFF;
+
+  --danger: #DC2626;
+  --danger-soft: #FEF2F2;
+  --danger-border: #FECACA;
+  --danger-text: #991B1B;
+
+  --warning: #B45309;
+  --warning-soft: #FFFBEB;
+  --warning-text: #92400E;
+  --shared-soft: #FEF3C7;
+
+  // Sidebar (a fixed dark surface in the light theme)
+  --sidebar-bg: #111827;
+  --sidebar-hover: #1F2937;
+  --sidebar-text: #D1D5DB;
+  --sidebar-text-muted: #9CA3AF;
+  --sidebar-text-strong: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  // Avatars
+  --avatar-blue: #2563EB;
+  --avatar-green: #047857;
+  --avatar-orange: #B45309;
+  --avatar-red: #DC2626;
+  --avatar-gray: #6B7280;
+
+  // Shadows
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  --overlay: rgba(0, 0, 0, 0.4);
+  --focus-ring: rgba(37, 99, 235, 0.35);
+
+  --font-family-sans: #{$font-family-sans};
+
+  color-scheme: light;
+}
+
+// Dark theme. Only the tokens are redefined; no component rule is duplicated.
+@mixin dark-tokens {
+  --brand: #3B82F6;
+  --brand-hover: #60A5FA;
+  --brand-soft: #1E293B;
+  --brand-subtle: #1E40AF;
+  --brand-text: #93C5FD;
+  --on-brand: #0B1120;
+
+  --bg-app: #0B1120;
+  --bg-surface: #151C2C;
+  --bg-subtle: #1B2334;
+  --bg-muted: #232C40;
+
+  --text-primary: #F9FAFB;
+  --text-body: #E5E7EB;
+  --text-secondary: #CBD5E1;
+  --text-muted: #A3AEC2;
+  --text-faint: #8B97AC;
+
+  --border-default: #2A3448;
+  --border-strong: #3B4761;
+
+  --success: #34D399;
+  --success-soft: #0C2E24;
+  --success-border: #17654E;
+  --success-text: #6EE7B7;
+  --on-success: #04231A;
+
+  --danger: #F87171;
+  --danger-soft: #351719;
+  --danger-border: #7F2A2A;
+  --danger-text: #FCA5A5;
+
+  --warning: #FBBF24;
+  --warning-soft: #33260B;
+  --warning-text: #FCD34D;
+  --shared-soft: #3A2E0C;
+
+  --sidebar-bg: #080D18;
+  --sidebar-hover: #1B2334;
+  --sidebar-text: #CBD5E1;
+  --sidebar-text-muted: #8B97AC;
+  --sidebar-text-strong: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+
+  --avatar-blue: #3B82F6;
+  --avatar-green: #10B981;
+  --avatar-orange: #F59E0B;
+  --avatar-red: #EF4444;
+  --avatar-gray: #64748B;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+
+  --overlay: rgba(0, 0, 0, 0.6);
+  --focus-ring: rgba(96, 165, 250, 0.4);
+
+  color-scheme: dark;
+}
+
+// Follow the OS unless the user picked a theme explicitly.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { @include dark-tokens; }
+}
+
+// An explicit choice wins in both directions.
+:root[data-theme="dark"] { @include dark-tokens; }
+
+// ---------------------------------------------------------------------------
+// SASS ALIASES
+//
+// Component rules below read these, so a token rename touches one place.
+// Values are var() references: never pass them to a Sass colour function.
+// ---------------------------------------------------------------------------
+
+$brand-primary: var(--brand);
+$brand-primary-hover: var(--brand-hover);
+$brand-soft: var(--brand-soft);
+$brand-subtle: var(--brand-subtle);
+$brand-text: var(--brand-text);
+$on-brand: var(--on-brand);
+
+$bg-app: var(--bg-app);
+$bg-surface: var(--bg-surface);
+$bg-subtle: var(--bg-subtle);
+$bg-muted: var(--bg-muted);
+
+$text-primary: var(--text-primary);
+$text-body: var(--text-body);
+$text-secondary: var(--text-secondary);
+$text-muted: var(--text-muted);
+$text-faint: var(--text-faint);
+
+$border-default: var(--border-default);
+$border-strong: var(--border-strong);
+
+$success: var(--success);
+$success-soft: var(--success-soft);
+$success-border: var(--success-border);
+$success-text: var(--success-text);
+$danger: var(--danger);
+$danger-soft: var(--danger-soft);
+$danger-border: var(--danger-border);
+$danger-text: var(--danger-text);
+$warning: var(--warning);
+$warning-soft: var(--warning-soft);
+$warning-text: var(--warning-text);
+
+$shadow-xs: var(--shadow-xs);
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+
+// ---------------------------------------------------------------------------
+// RESET / BASE
+//
+// Replaces Bootstrap Reboot, which the app no longer loads.
+// ---------------------------------------------------------------------------
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-    background-color: #7fc8f8;
+  margin: 0;
+  font-family: $font-family-sans;
+  font-size: 1rem;
+  line-height: 1.6;
+  background-color: $bg-app;
+  color: $text-body;
+  min-height: 100vh;
 }
 
-.note-card {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+  margin: 0;
 }
 
-.note-card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
 }
 
-.note-content {
-    color: #333;
+ul, ol {
+  margin: 0;
+  padding: 0;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    color: #ffffff;
+// Lists used as layout carry no markers; prose lists opt back in via
+// .rich-content.
+ul[class], ol[class] {
+  list-style: none;
 }
 
-.navbar-nav .nav-link {
-    font-weight: bold;
-    color: #ffffff;
+img, svg, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
+
+a {
+  color: $brand-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid $border-default;
+}
+
+// Focus: visible on keyboard navigation, never on mouse clicks.
+:focus-visible {
+  outline: 2px solid $brand-primary;
+  outline-offset: 2px;
+  border-radius: $radius-sm;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: $border-strong;
+  border-radius: $radius-full;
+}
+::-webkit-scrollbar-thumb:hover { background: $text-faint; }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+// ---------------------------------------------------------------------------
+// ACCESSIBILITY HELPERS
+// ---------------------------------------------------------------------------
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: $spacer-4;
+  z-index: $z-toast + 1;
+  padding: $spacer-3 $spacer-4;
+  background: $bg-surface;
+  color: $brand-primary;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  transition: top $transition-fast;
+
+  &:focus {
+    top: $spacer-4;
+    text-decoration: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// APP SHELL
+// ---------------------------------------------------------------------------
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: $sidebar-width;
+  transition: margin-left $transition-base;
+
+  @media (max-width: $bp-lg) {
+    margin-left: 0;
+  }
+}
+
+.page-content {
+  flex: 1;
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacer-6;
+
+  // Single definition: the old file set this twice at overlapping breakpoints.
+  @media (max-width: $bp-lg) {
+    padding: $spacer-4;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SIDEBAR
+// ---------------------------------------------------------------------------
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: $sidebar-width;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  z-index: $z-sidebar;
+  display: flex;
+  flex-direction: column;
+  transition: transform $transition-base;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media (max-width: $bp-lg) {
+    transform: translateX(-100%);
+
+    &.sidebar--open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  padding: $spacer-5;
+  border-bottom: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text-strong);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  i {
+    font-size: 1.25rem;
+    color: $brand-primary;
+  }
+}
+
+.sidebar__nav {
+  flex: 1;
+  padding: $spacer-3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__section {
+  margin-top: $spacer-4;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.sidebar__section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sidebar-text-muted);
+  padding: $spacer-2 $spacer-3;
+  margin-bottom: 2px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  padding: $spacer-3;
+  border-radius: $radius-md;
+  color: var(--sidebar-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background $transition-fast, color $transition-fast;
+  white-space: nowrap;
+
+  i {
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-strong);
+    text-decoration: none;
+  }
+
+  &--profile {
+    padding: $spacer-2;
+    gap: $spacer-3;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &--active {
+    background: $brand-primary;
+    color: $on-brand;
+
+    &:hover {
+      background: $brand-primary-hover;
+      color: $on-brand;
+    }
+  }
+}
+
+.sidebar__badge {
+  margin-left: auto;
+  background: $danger;
+  color: #FFFFFF;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: $radius-full;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.sidebar__footer {
+  padding: $spacer-3 $spacer-4;
+  border-top: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: $spacer-2;
+}
+
+.sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sidebar-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__user-role {
+  font-size: 0.75rem;
+  color: var(--sidebar-text-muted);
+  text-transform: capitalize;
+}
+
+.sidebar__logout-form {
+  flex-shrink: 0;
+}
+
+.sidebar__logout {
+  color: var(--sidebar-text-muted);
+  padding: $spacer-3;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: var(--sidebar-hover);
+    color: $danger;
+  }
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  z-index: $z-sidebar - 1;
+  backdrop-filter: blur(2px);
+
+  &--visible {
+    display: block;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// TOPBAR
+// ---------------------------------------------------------------------------
+
+.topbar {
+  height: $topbar-height;
+  background: $bg-surface;
+  border-bottom: 1px solid $border-default;
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  padding: 0 $spacer-6;
+  position: sticky;
+  top: 0;
+  z-index: $z-topbar;
+
+  @media (max-width: $bp-lg) {
+    padding: 0 $spacer-4;
+  }
+}
+
+.topbar__hamburger {
+  display: none;
+  color: $text-secondary;
+  font-size: 1.25rem;
+  padding: $spacer-3;
+  border-radius: $radius-md;
+
+  &:hover {
+    background: $bg-muted;
+    color: $text-primary;
+  }
+
+  @media (max-width: $bp-lg) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: $spacer-4;
+  min-width: 0;
+}
+
+.topbar__breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacer-2;
+  font-size: 0.875rem;
+  color: $text-muted;
+
+  a {
+    color: $text-muted;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $brand-primary;
+    }
+  }
+
+  // Only the trail's tail matters on a phone; the full path needs the room.
+  @media (max-width: $bp-md) {
+    a { display: none; }
+    .topbar__breadcrumb-separator { display: none; }
+  }
+}
+
+.topbar__breadcrumb-separator {
+  color: $border-strong;
+  font-size: 0.625rem;
+  display: inline-flex;
+}
+
+.topbar__breadcrumb-current {
+  color: $text-body;
+  font-weight: 500;
+}
+
+.topbar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: $spacer-2;
+}
+
+.topbar__action-icon,
+.topbar__notification-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+  font-size: 1.0625rem;
+  // 40px box keeps the tap target comfortable without a large visual.
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $bg-muted;
+    color: $text-body;
+    text-decoration: none;
+  }
+}
+
+// One glyph per theme; the other is hidden.
+.theme-toggle__dark { display: none; }
+.theme-toggle__light { display: inline-flex; }
+
+@mixin dark-toggle-glyphs {
+  .theme-toggle__light { display: none; }
+  .theme-toggle__dark { display: inline-flex; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { @include dark-toggle-glyphs; }
+}
+:root[data-theme="dark"] { @include dark-toggle-glyphs; }
+
+.topbar__notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: $danger;
+  color: #FFFFFF;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  border: 2px solid $bg-surface;
+  line-height: 1;
+}
+
+// ---------------------------------------------------------------------------
+// AUTH SHELL
+// ---------------------------------------------------------------------------
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacer-6;
+  background: $bg-app;
+
+  @media (max-width: $bp-sm) {
+    align-items: flex-start;
+    padding: $spacer-8 $spacer-4 $spacer-4;
+  }
+}
+
+// The <main> wrapper carries the sizing so the card stays centred.
+.auth-shell__content {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-card {
+  width: 100%;
+  background: $bg-surface;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  padding: $spacer-8;
+  border: 1px solid $border-default;
+
+  .btn-lg {
+    width: 100%;
+  }
+
+  @media (max-width: $bp-sm) {
+    padding: $spacer-5;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.auth-card__brand {
+  text-align: center;
+  margin-bottom: $spacer-6;
+
+  i {
+    font-size: 2rem;
+    color: $brand-primary;
+    display: block;
+    margin-bottom: $spacer-3;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin-top: $spacer-2;
+  }
+}
+
+.auth-card__footer {
+  text-align: center;
+  margin-top: $spacer-6;
+  padding-top: $spacer-5;
+  border-top: 1px solid $border-default;
+  font-size: 0.875rem;
+  color: $text-muted;
+
+  a {
+    font-weight: 500;
+  }
+}
+
+.auth-card__home-link {
+  text-align: center;
+  margin-top: $spacer-4;
+  font-size: 0.8125rem;
+
+  a {
+    color: $text-muted;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacer-2;
+
+    &:hover {
+      color: $text-body;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// TYPOGRAPHY
+// ---------------------------------------------------------------------------
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+
+  @media (max-width: $bp-sm) {
+    font-size: 1.5rem;
+  }
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: $text-muted;
+  margin-top: $spacer-1;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-primary;
+  letter-spacing: -0.01em;
+}
+
+.section-heading {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: $spacer-3;
+}
+
+.section-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacer-3;
+  margin-bottom: $spacer-3;
+
+  .section-heading {
+    margin-bottom: 0;
+  }
+}
+
+.section-block {
+  margin-top: $spacer-8;
+}
+
+.fw-semibold {
+  font-weight: 600;
+}
+
+// ---------------------------------------------------------------------------
+// PAGE HEADER
+// ---------------------------------------------------------------------------
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacer-6;
+  flex-wrap: wrap;
+  gap: $spacer-4;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.page-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-sm) {
+    width: 100%;
+
+    .btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BUTTONS
+// ---------------------------------------------------------------------------
 
 .btn {
-    border-radius: 20px;
-    transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacer-2;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: $radius-md;
+  transition: background $transition-fast, border-color $transition-fast, color $transition-fast;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  line-height: 1.5;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.btn-sm {
+  font-size: 0.8125rem;
+  // Vertical padding, not height: keeps a ~36px tap target on a small label.
+  padding: 0.4375rem 0.75rem;
+}
+
+.btn-lg {
+  font-size: 1rem;
+  padding: 0.625rem 1.25rem;
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
+  background: $brand-primary;
+  border-color: $brand-primary;
+  color: $on-brand;
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+  &:hover {
+    background: $brand-primary-hover;
+    border-color: $brand-primary-hover;
+    color: $on-brand;
+  }
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
+  background: $bg-surface;
+  border-color: $border-default;
+  color: $text-secondary;
 
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #5a6268;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
+  &:hover {
+    background: $bg-subtle;
+    border-color: $border-strong;
+    color: $text-primary;
+  }
 }
 
 .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+  background: $success;
+  border-color: $success;
+  color: var(--on-success);
+
+  &:hover {
+    background: $success-text;
+    border-color: $success-text;
+    color: var(--on-success);
+  }
 }
 
-.btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+// Outline rather than solid: destructive actions sit next to ordinary ones in
+// card footers, and a wall of solid red would dominate every list.
+// .btn-secondary is the shape it pairs with, so they match by design.
+.btn-danger {
+  background: $bg-surface;
+  border-color: $border-default;
+  color: $danger;
+
+  &:hover {
+    background: $danger-soft;
+    border-color: $danger;
+    color: $danger;
+  }
 }
 
-.bg-color {
-    background-color: #5aa9e6;
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: $text-secondary;
+
+  &:hover {
+    background: $bg-muted;
+    color: $text-primary;
+  }
 }
 
-.bg-color-card {
-    background-color: #ebf2fa;
+// button_to renders a <form>; keep it from breaking button rows.
+.content-card__footer form,
+.detail-actions form,
+.list-item__actions form,
+.page-header__actions form,
+.form-actions form {
+  display: contents;
 }
 
-.nav-text {
-    font-size: 150%;
+// ---------------------------------------------------------------------------
+// FORMS
+// ---------------------------------------------------------------------------
+
+@mixin field-base {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  line-height: 1.5;
+  color: $text-body;
+  background: $bg-surface;
+  border: 1px solid $border-strong;
+  border-radius: $radius-md;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &::placeholder {
+    color: $text-faint;
+  }
+
+  &:focus {
+    border-color: $brand-primary;
+    // Replaces the outline rather than removing focus: the ring is 3px and
+    // clears 3:1 against the surface in both themes.
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+  }
+
+  &:disabled {
+    background: $bg-muted;
+    color: $text-muted;
+    cursor: not-allowed;
+  }
 }
 
-.back-button {
-    display: inline-block;
-    margin-top: 20px;
-    font-weight: bold;
-    color: #333;
+.form-group {
+  margin-bottom: $spacer-5;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-secondary;
+  margin-bottom: $spacer-2;
+}
+
+.form-hint {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin-top: $spacer-1;
+}
+
+.form-control {
+  @include field-base;
+}
+
+.form-select {
+  @include field-base;
+  appearance: auto;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+
+  &.tinymce {
+    min-height: 250px;
+  }
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  // Generous vertical padding gives each row a 40px+ tap target.
+  padding: $spacer-2 0;
+
+  .form-check-input {
+    width: 1.0625rem;
+    height: 1.0625rem;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--brand);
+    flex-shrink: 0;
+  }
+
+  .form-check-label {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.form-section {
+  padding-bottom: $spacer-5;
+  margin-bottom: $spacer-5;
+  border-bottom: 1px solid $border-default;
+
+  &:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.form-section__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: $spacer-3;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  margin-top: $spacer-6;
+  padding-top: $spacer-5;
+  border-top: 1px solid $border-default;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+// TinyMCE must not push the form wider than the viewport.
+.tox-tinymce {
+  max-width: 100%;
+  border-radius: $radius-md !important;
+}
+
+// ---------------------------------------------------------------------------
+// CARDS
+// ---------------------------------------------------------------------------
+
+.card {
+  background: $bg-surface;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xs;
+}
+
+.card-header {
+  border-bottom: 1px solid $border-default;
+  padding: $spacer-4 $spacer-5;
+}
+
+.card-header__description {
+  font-size: 0.875rem;
+  color: $text-muted;
+  margin-top: $spacer-1;
+}
+
+.card-body {
+  padding: $spacer-5;
+
+  &--flush {
+    padding: 0;
+  }
+}
+
+.card--detail {
+  max-width: 860px;
+}
+
+.card-form {
+  max-width: 720px;
+}
+
+.card-detail__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacer-4;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.card-detail__heading {
+  min-width: 0;
+}
+
+.card-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacer-2;
+  margin-top: $spacer-2;
+}
+
+.detail-actions {
+  display: flex;
+  gap: $spacer-2;
+  flex-shrink: 0;
+
+  @media (max-width: $bp-sm) {
+    .btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CONTENT CARDS (Note / Collection / User / Friend)
+// ---------------------------------------------------------------------------
+
+.content-card {
+  background: $bg-surface;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xs;
+  transition: box-shadow $transition-fast, border-color $transition-fast;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $border-strong;
+  }
+}
+
+.content-card__body {
+  flex: 1;
+  padding: $spacer-5;
+}
+
+.content-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacer-2;
+  line-height: 1.4;
+}
+
+.content-card__link {
+  color: inherit;
+
+  &:hover {
+    color: $brand-primary;
     text-decoration: none;
-    border: 2px solid #333;
-    padding: 10px 20px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
+  }
 }
 
-.back-button:hover {
-    background-color: #333;
-    color: #fff;
+.content-card__meta {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacer-3;
+  margin-bottom: $spacer-3;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacer-1;
+  }
 }
 
-.back-button i {
-    margin-right: 10px;
+// Plain text, clamped. The preview used to render the note's HTML, which let
+// a single pasted image blow out the card and needed a gradient to hide it.
+.content-card__preview {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.note-form {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+.content-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacer-1;
+  margin-top: $spacer-3;
 }
 
-.field label {
-    font-weight: bold;
-    color: #333;
+.content-card__notes-preview {
+  margin-top: $spacer-3;
+
+  &-item {
+    font-size: 0.8125rem;
+    color: $text-muted;
+    margin: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: $spacer-2;
+
+    i {
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+  }
+
+  &-more {
+    font-size: 0.75rem;
+    color: $text-faint;
+    margin: 4px 0;
+  }
 }
 
-.tinymce {
+.content-card__footer {
+  padding: $spacer-3 $spacer-5;
+  border-top: 1px solid $border-default;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacer-2;
+  background: $bg-subtle;
+}
+
+// ---------------------------------------------------------------------------
+// BADGES
+// ---------------------------------------------------------------------------
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.badge-primary {
+  background: $brand-soft;
+  color: $brand-text;
+}
+
+.badge-success {
+  background: $success-soft;
+  color: $success-text;
+}
+
+.badge-danger {
+  background: $danger-soft;
+  color: $danger-text;
+}
+
+.badge-warning {
+  background: $warning-soft;
+  color: $warning-text;
+}
+
+.badge-neutral {
+  background: $bg-muted;
+  color: $text-secondary;
+}
+
+.badge-shared {
+  background: var(--shared-soft);
+  color: $warning-text;
+}
+
+.badge[href] {
+  &:hover {
+    text-decoration: none;
+    filter: brightness(0.96);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// EMPTY STATE
+// ---------------------------------------------------------------------------
+
+.empty-state {
+  text-align: center;
+
+  &__icon {
+    color: $border-strong;
+    display: block;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__description {
+    font-size: 0.875rem;
+    color: $text-muted;
+    max-width: 380px;
+    margin: $spacer-2 auto 0;
+  }
+
+  .btn {
+    margin-top: $spacer-5;
+  }
+
+  // Full-page variant
+  &--block {
+    padding: $spacer-8 $spacer-4;
+
+    .empty-state__icon {
+      font-size: 3rem;
+      margin-bottom: $spacer-4;
+    }
+
+    .empty-state__title {
+      font-size: 1.125rem;
+    }
+  }
+
+  // Inside a card, where a whole hero would be too much. Replaces the old
+  // one-off <p class="empty-message">.
+  &--inline {
+    text-align: left;
+    padding: $spacer-5;
+    background: $bg-subtle;
+    border: 1px dashed $border-default;
+    border-radius: $radius-md;
+
+    .empty-state__icon {
+      display: inline-block;
+      font-size: 1rem;
+      margin-right: $spacer-2;
+      color: $text-faint;
+    }
+
+    .empty-state__title {
+      display: inline;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .empty-state__description {
+      margin-left: 0;
+      max-width: none;
+    }
+
+    .btn {
+      margin-top: $spacer-4;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FLASH / ALERTS
+// ---------------------------------------------------------------------------
+
+.flash-container {
+  position: fixed;
+  top: $spacer-4;
+  right: $spacer-4;
+  z-index: $z-toast;
+  display: flex;
+  flex-direction: column;
+
+  // Inside the app shell the toast would otherwise sit on top of the topbar's
+  // controls for its five visible seconds, swallowing clicks on New Note, the
+  // notification bell and the theme toggle.
+  .page-content & {
+    top: calc(#{$topbar-height} + #{$spacer-4});
+  }
+  gap: $spacer-2;
+  max-width: 420px;
+  width: calc(100% - #{$spacer-8});
+
+  @media (max-width: $bp-sm) {
+    left: $spacer-4;
+    right: $spacer-4;
+    max-width: none;
+    width: auto;
+  }
+}
+
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacer-3;
+  padding: $spacer-4 $spacer-5;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  animation: flash-enter 0.25s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  // Exit lives in CSS so prefers-reduced-motion below applies to it too.
+  &--dismissing {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+
+  &__message {
+    flex: 1;
+  }
+
+  &__close {
+    color: inherit;
+    opacity: 0.6;
+    padding: $spacer-1;
+    margin: -#{$spacer-1};
+    font-size: 1rem;
+    flex-shrink: 0;
+    border-radius: $radius-sm;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &--success {
+    background: $success-soft;
+    border-color: $success-border;
+    color: $success-text;
+
+    .flash__icon { color: $success; }
+  }
+
+  &--alert {
+    background: $danger-soft;
+    border-color: $danger-border;
+    color: $danger-text;
+
+    .flash__icon { color: $danger; }
+  }
+
+  &--notice {
+    background: $brand-soft;
+    border-color: $brand-subtle;
+    color: $brand-text;
+
+    .flash__icon { color: $brand-primary; }
+  }
+}
+
+@keyframes flash-enter {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+// Inline alerts (form errors, informational notes inside a page).
+.alert {
+  border-radius: $radius-lg;
+  border: 1px solid transparent;
+  padding: $spacer-4 $spacer-5;
+  margin-bottom: $spacer-5;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacer-3;
+
+  ul {
+    list-style: disc;
+    margin: $spacer-1 0 0;
+    padding-left: 1.25em;
+
+    li {
+      margin-bottom: 2px;
+    }
+  }
+
+  a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}
+
+.alert-danger {
+  background: $danger-soft;
+  border-color: $danger-border;
+  color: $danger-text;
+}
+
+.alert-primary {
+  background: $brand-soft;
+  border-color: $brand-subtle;
+  color: $brand-text;
+}
+
+// ---------------------------------------------------------------------------
+// SEARCH
+// ---------------------------------------------------------------------------
+
+.search-wrapper {
+  margin-bottom: $spacer-5;
+}
+
+.search-input {
+  position: relative;
+  max-width: 380px;
+
+  &__icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-faint;
+    font-size: 0.875rem;
+    pointer-events: none;
+  }
+
+  &__field {
+    @include field-base;
+    padding-left: 36px;
+    padding-right: 40px;
+
+    // Chrome's own clear affordance would sit on top of ours.
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  // Rendered only when a search is active, so no :has() fallback is needed.
+  &__clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: $radius-sm;
+    font-size: 0.8125rem;
+
+    &:hover {
+      color: $text-primary;
+      background: $bg-muted;
+      text-decoration: none;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// PAGINATION
+// ---------------------------------------------------------------------------
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacer-3;
+  margin-top: $spacer-6;
+  padding-top: $spacer-5;
+  border-top: 1px solid $border-default;
+}
+
+.pagination__link {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacer-2;
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-secondary;
+  background: $bg-surface;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  transition: background $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $bg-subtle;
+    border-color: $border-strong;
+    color: $text-primary;
+    text-decoration: none;
+  }
+
+  &--disabled {
+    color: $text-faint;
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+
+    &:hover {
+      background: transparent;
+      border-color: transparent;
+      color: $text-faint;
+    }
+  }
+}
+
+.pagination__status {
+  font-size: 0.875rem;
+  color: $text-muted;
+  text-align: center;
+}
+
+.pagination__count {
+  color: $text-faint;
+}
+
+@media (max-width: $bp-sm) {
+  .pagination__count {
+    display: none;
+  }
+
+  .pagination__link span {
+    display: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BACK LINK
+// ---------------------------------------------------------------------------
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacer-2;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-muted;
+  padding: $spacer-2 0;
+  margin-bottom: $spacer-2;
+  transition: color $transition-fast;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    color: $brand-primary;
+    text-decoration: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// TABS
+// ---------------------------------------------------------------------------
+
+.nav-tabs-custom {
+  border-bottom: 1px solid $border-default;
+  margin-bottom: $spacer-5;
+  display: flex;
+  overflow-x: auto;
+}
+
+.nav-tab {
+  padding: $spacer-3 $spacer-4;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-muted;
+  border-bottom: 2px solid transparent;
+  transition: color $transition-fast, border-color $transition-fast;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacer-2;
+
+  &:hover {
+    color: $text-secondary;
+    text-decoration: none;
+  }
+
+  &--active {
+    color: $brand-primary;
+    border-bottom-color: $brand-primary;
+  }
+}
+
+.nav-tab__count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0 6px;
+  border-radius: $radius-full;
+  background: $bg-muted;
+  color: $text-secondary;
+
+  .nav-tab--active & {
+    background: $brand-soft;
+    color: $brand-text;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LIST ITEMS (Notifications)
+// ---------------------------------------------------------------------------
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: $spacer-4;
+  padding: $spacer-4 $spacer-5;
+  border-bottom: 1px solid $border-default;
+  transition: background $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: $bg-subtle;
+  }
+
+  @media (max-width: $bp-sm) {
+    flex-wrap: wrap;
+  }
+}
+
+.list-item__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+
+  &--primary { background: $brand-soft; color: $brand-text; }
+  &--success { background: $success-soft; color: $success-text; }
+  &--warning { background: $warning-soft; color: $warning-text; }
+  &--danger { background: $danger-soft; color: $danger-text; }
+  &--neutral { background: $bg-muted; color: $text-secondary; }
+}
+
+.list-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item__title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-body;
+}
+
+.list-item__subtitle {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin-top: $spacer-1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacer-3;
+}
+
+.list-item__actions {
+  display: flex;
+  align-items: center;
+  gap: $spacer-2;
+  flex-shrink: 0;
+
+  @media (max-width: $bp-sm) {
+    // Drop below the message rather than squeezing it.
     width: 100%;
-    height: 200px;
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding-left: calc(40px + #{$spacer-4});
+  }
 }
 
-.actions {
-    margin-top: 20px;
+// ---------------------------------------------------------------------------
+// STAT CARDS
+// ---------------------------------------------------------------------------
+
+// Always a link, so the hover state belongs to the element itself; the old
+// .stat-card-link wrapper duplicated these rules.
+.stat-card {
+  background: $bg-surface;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  padding: $spacer-5;
+  display: flex;
+  align-items: center;
+  gap: $spacer-4;
+  color: inherit;
+  transition: box-shadow $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $border-strong;
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+
+  &--primary { background: $brand-soft; color: $brand-text; }
+  &--success { background: $success-soft; color: $success-text; }
+  &--warning { background: $warning-soft; color: $warning-text; }
+  &--danger { background: $danger-soft; color: $danger-text; }
+}
+
+.stat-card__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-primary;
+  line-height: 1.2;
+}
+
+.stat-card__label {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+// ---------------------------------------------------------------------------
+// AVATARS
+// ---------------------------------------------------------------------------
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  font-weight: 600;
+  color: #FFFFFF;
+  flex-shrink: 0;
+
+  &--sm { width: 28px; height: 28px; font-size: 0.6875rem; }
+  &--md { width: 36px; height: 36px; font-size: 0.875rem; }
+  &--lg { width: 48px; height: 48px; font-size: 1.125rem; }
+  &--xl { width: 64px; height: 64px; font-size: 1.5rem; }
+}
+
+.avatar--blue { background: var(--avatar-blue); }
+.avatar--green { background: var(--avatar-green); }
+.avatar--orange { background: var(--avatar-orange); }
+.avatar--red { background: var(--avatar-red); }
+.avatar--gray { background: var(--avatar-gray); }
+
+.avatar-info {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  min-width: 0;
+}
+
+// ---------------------------------------------------------------------------
+// LAYOUT HELPERS
+// ---------------------------------------------------------------------------
+
+.divider {
+  height: 1px;
+  background: $border-default;
+  margin: $spacer-6 0;
+}
+
+.grid-cards {
+  display: grid;
+  // 280px keeps three columns at desktop width and avoids a lone stretched
+  // card on tablets.
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacer-5;
+
+  @media (max-width: $bp-md) {
+    gap: $spacer-4;
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacer-5;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacer-5;
+
+  @media (max-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Spacing utilities map 1:1 onto the spacer scale — the previous set used
+// Bootstrap's names with different values, which read as a lie.
+@each $step, $value in (1: $spacer-1, 2: $spacer-2, 3: $spacer-3, 4: $spacer-4,
+                        5: $spacer-5, 6: $spacer-6, 8: $spacer-8) {
+  .mt-#{$step} { margin-top: $value; }
+  .mb-#{$step} { margin-bottom: $value; }
+}
+
+@media (max-width: $bp-md) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RICH TEXT (note bodies from TinyMCE)
+// ---------------------------------------------------------------------------
+
+.rich-content {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: $text-secondary;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: $text-primary;
+    font-weight: 600;
+    margin: 1.5em 0 0.5em;
+  }
+
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.3em; }
+  h3 { font-size: 1.1em; }
+
+  p { margin: 0 0 1em; }
+
+  ul, ol {
+    padding-left: 1.5em;
+    margin: 0 0 1em;
+    list-style: revert;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: $radius-md;
+    margin: 0.5em 0;
+  }
+
+  blockquote {
+    border-left: 3px solid $brand-primary;
+    padding-left: 1em;
+    margin: 1em 0;
+    color: $text-secondary;
+    font-style: italic;
+  }
+
+  code {
+    background: $bg-muted;
+    padding: 0.125em 0.375em;
+    border-radius: $radius-sm;
+    font-size: 0.875em;
+    font-family: $font-family-mono;
+  }
+
+  pre {
+    background: $bg-muted;
+    color: $text-primary;
+    padding: 1em;
+    border-radius: $radius-md;
+    overflow-x: auto;
+    margin: 1em 0;
+
+    code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  hr {
+    margin: 1.5em 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LANDING PAGE
+// ---------------------------------------------------------------------------
+
+.landing-nav {
+  background: $bg-surface;
+  border-bottom: 1px solid $border-default;
+  padding: $spacer-4 0;
+}
+
+.landing-nav__inner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: 0 $spacer-5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacer-4;
+}
+
+.landing-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: $spacer-3;
+  color: $text-primary;
+  font-weight: 700;
+  font-size: 1.25rem;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  i {
+    color: $brand-primary;
+  }
+}
+
+.landing-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: $spacer-2;
+}
+
+.landing-hero {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacer-10 $spacer-5 $spacer-8;
+  text-align: center;
+}
+
+.landing-hero__title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: $spacer-4;
+
+  span {
+    color: $brand-primary;
+  }
+
+  @media (max-width: $bp-md) {
+    font-size: 2.25rem;
+  }
+
+  @media (max-width: $bp-sm) {
+    font-size: 1.875rem;
+  }
+}
+
+.landing-hero__subtitle {
+  font-size: 1.125rem;
+  color: $text-muted;
+  max-width: 540px;
+  margin: 0 auto $spacer-8;
+  line-height: 1.6;
+}
+
+.landing-hero__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacer-3;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.landing-features {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: 0 $spacer-5 $spacer-10;
+}
+
+.landing-feature-card {
+  background: $bg-surface;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  padding: $spacer-8 $spacer-5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .stat-card__icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+  }
+}
+
+.landing-feature-card__content {
+  margin-top: $spacer-4;
+}
+
+.landing-feature-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacer-2;
+}
+
+.landing-feature-card__description {
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+.landing-footer {
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text-muted);
+  padding: $spacer-8 $spacer-5;
+}
+
+.landing-footer__inner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacer-4;
+}
+
+.landing-footer__brand {
+  font-size: 0.875rem;
+  color: var(--sidebar-text-strong);
+  font-weight: 600;
+}
+
+.landing-footer__credits {
+  font-size: 0.8125rem;
+
+  a {
+    color: var(--sidebar-text);
+
+    &:hover {
+      color: var(--sidebar-text-strong);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// REDUCED MOTION
+// ---------------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

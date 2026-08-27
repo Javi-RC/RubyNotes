@@ -1,0 +1,21 @@
+<%#
+  variant: :block (default) for a full-page empty state, :inline for an empty
+  region inside a card. Replaces the old ad-hoc <p class="empty-message">.
+%>
+<% variant = local_assigns.fetch(:variant, :block) %>
+<% icon_name = local_assigns.fetch(:icon, 'folder-open') %>
+<% icon_style = local_assigns.fetch(:icon_style, :regular) %>
+
+<div class="empty-state empty-state--<%= variant %>">
+  <%= icon icon_name, style: icon_style, css_class: 'empty-state__icon' %>
+  <p class="empty-state__title"><%= local_assigns.fetch(:title, 'Nothing here yet') %></p>
+  <% if local_assigns[:description].present? %>
+    <p class="empty-state__description"><%= local_assigns[:description] %></p>
+  <% end %>
+  <% if local_assigns[:action_path].present? %>
+    <%= link_to local_assigns[:action_path], class: 'btn btn-primary' do %>
+      <%= icon local_assigns.fetch(:action_icon, 'plus') %>
+      <%= local_assigns.fetch(:action_label, 'Create') %>
+    <% end %>
+  <% end %>
+</div>

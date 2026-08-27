@@ -1,111 +1,95 @@
-<%= render 'layouts/navbar' %>
+<% own_profile = current_user == @user %>
+<% page_title own_profile ? 'Edit profile' : 'Edit User' %>
+<% if own_profile %>
+  <% breadcrumb ['Profile', show_profile_path(@user)], ['Edit'] %>
+<% else %>
+  <% breadcrumb ['Administration'], ['All Users', users_path], [@user.name, @user], ['Edit'] %>
+<% end %>
 
-<div class="container mt-5">
-  <div class="card shadow-sm">
-    <div class="card-header">
-      <h5 class="card-title mb-0">User Details</h5>
+<%= render 'shared/back_link',
+      label: own_profile ? 'Back to profile' : 'Back to user',
+      back_path: own_profile ? show_profile_path(@user) : user_path(@user) %>
+
+<%= render layout: 'shared/form_card', locals: {
+      title: own_profile ? 'Edit profile' : "Edit: #{@user.name}",
+      object: @user
+    } do %>
+  <%= form_with(model: @user, local: true) do |form| %>
+    <div class="form-group">
+      <%= form.label :name, 'Username', class: 'form-label' %>
+      <%= form.text_field :name, class: 'form-control', required: true, autocomplete: 'username' %>
     </div>
-    <div class="card-body">
-      <%= form_with(model: @user, local: true) do |form| %>
-        <% if @user.errors.any? %>
-          <div class="alert alert-danger">
-            <ul>
-              <% @user.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
 
-        <div class="mb-3">
-          <%= form.label :name, class: 'form-label' %>
-          <%= form.text_field :name, class: 'form-control' %>
-        </div>
-        <div class="mb-3">
-          <%= form.label :password, class: 'form-label' %>
-          <%= form.password_field :password, class: 'form-control' %>
-        </div>
-        <% if current_user&.role === 'admin' %>
-          <div class="mb-3">
-            <%= form.label :role, class: 'form-label' %>
-            <%= form.select :role, options_for_select(['user', 'admin'], @user.role), {}, class: 'form-control' %>
-          </div>
-        <% end %>
+    <div class="form-group">
+      <%= form.label :password, 'New password', class: 'form-label' %>
+      <%= form.password_field :password, class: 'form-control', autocomplete: 'new-password',
+            'aria-describedby': 'new-password-hint' %>
+      <p class="form-hint" id="new-password-hint">Leave blank to keep the current password.</p>
+    </div>
 
-        <h2>Notes:</h2>
-        <div class="row">
-          <% if @user.notes.present? %>
-            <% @user.notes.each do |note| %>
-              <div class="col-md-4 mb-4">
-                <div class="card bg-color-card">
-                  <div class="card-body">
-                    <h5 class="card-title"><%= note.title %></h5>
-                    <hr class="my-4 border border-dark">
-                    <div style="max-width: 500px; max-height: 500px; overflow: auto;">
-                      <%= sanitize(note.content) %>
-                    </div>
-                  </div>
-                  <div class="card-footer">
-                    <%= link_to note, class: 'btn btn-primary mr-2' do %>
-                      <i class="fas fa-eye"></i> Show
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <p>This user doesn't have any notes!</p>
-          <% end %>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <%= link_to "New Note", new_user_note_path(@user), class: 'btn btn-primary mb-3' %>
-          </div>
+    <% if current_user&.admin? %>
+      <div class="form-group">
+        <%= form.label :role, 'Role', class: 'form-label' %>
+        <%= form.select :role, options_for_select([['User', 'user'], ['Admin', 'admin']], @user.role), {},
+              class: 'form-select' %>
+      </div>
+    <% end %>
 
-          <h2>Collections:</h2>
-          <div class="row">
-            <% if @user.collections.present? %>
-              <% @user.collections.each do |collection| %>
-                <div class="col-md-4 mb-4">
-                  <div class="card bg-color-card">
-                    <div class="card-body">
-                      <h5 class="card-title"><%= collection.title %></h5>
-                      <hr class="my-4 border border-dark">
-                      <div class="card-text collection-notes">
-                        <% if collection.notes.any? %>
-                          <% collection.notes.each do |note| %>
-                            <p><%= truncate(sanitize(note.title), length: 50) %></p>
-                          <% end %>
-                        <% else %>
-                          <p>No notes in this collection yet.</p>
-                        <% end %>
-                      </div>
-                    </div>
-                    <div class="card-footer">
-                      <%= link_to collection, class: 'btn btn-primary mr-2' do %>
-                        <i class="fas fa-eye"></i> Show
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            <% else %>
-              <p>This user doesn't have any collections!</p>
-            <% end %>
-          </div>
-          <div class="col-md-6">
-            <%= link_to "New Collection", new_user_collection_path(@user), class: 'btn btn-primary mb-3 mr-2' %>
-          </div>
-        </div>
+    <div class="form-actions">
+      <%= form.submit 'Save Changes', class: 'btn btn-primary btn-lg' %>
+      <%= link_to 'Cancel', own_profile ? show_profile_path(@user) : user_path(@user), class: 'btn btn-ghost' %>
+    </div>
+  <% end %>
+<% end %>
 
-        <div class="d-flex align-items-center gap-2">
-          <%= link_to @myroute, class: 'back-button my-2' do %>
-            <i class="fas fa-arrow-left"></i> Back
-          <% end %>
-          <%= form.submit 'Update', class: 'btn btn-primary' %>
-          <%= link_to 'Delete', user_path(@user), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
-        </div>
+<section class="section-block" aria-labelledby="user-notes-heading">
+  <div class="page-header">
+    <div class="page-header__left">
+      <h2 class="section-title" id="user-notes-heading">
+        <%= own_profile ? 'Your notes' : "#{@user.name}'s notes" %>
+      </h2>
+    </div>
+    <div class="page-header__actions">
+      <%= link_to new_user_note_path(@user), class: 'btn btn-secondary btn-sm' do %>
+        <%= icon 'plus' %> New Note
       <% end %>
     </div>
   </div>
-</div>
+
+  <% if @user.notes.any? %>
+    <div class="grid-cards">
+      <% @user.notes.each do |note| %>
+        <%= render 'notes/note_card', note: note %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'sticky-note', title: 'No notes yet.' %>
+  <% end %>
+</section>
+
+<section class="section-block" aria-labelledby="user-collections-heading">
+  <div class="page-header">
+    <div class="page-header__left">
+      <h2 class="section-title" id="user-collections-heading">
+        <%= own_profile ? 'Your collections' : "#{@user.name}'s collections" %>
+      </h2>
+    </div>
+    <div class="page-header__actions">
+      <%= link_to new_user_collection_path(@user), class: 'btn btn-secondary btn-sm' do %>
+        <%= icon 'plus' %> New Collection
+      <% end %>
+    </div>
+  </div>
+
+  <% if @user.collections.any? %>
+    <div class="grid-cards">
+      <% @user.collections.each do |collection| %>
+        <%= render 'collections/collection_card', collection: collection %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render 'shared/empty_state', variant: :inline,
+          icon: 'folder', title: 'No collections yet.' %>
+  <% end %>
+</section>

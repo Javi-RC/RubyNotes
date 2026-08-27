@@ -1,12 +1,18 @@
 class NotificationsController < ApplicationController
-  before_action :require_login, except: []
+  include Paginatable
+
+  before_action :require_login
+  # Every member action loads through the current user's own inbox, so a
+  # notification addressed to someone else is simply not found. Previously
+  # update/destroy/deny took any id and acted on it.
+  before_action :set_notification, only: %i[update destroy accept deny]
 
   def index
-    @notifications = Notification.where(receiver_id: current_user.id).order(notification_type: 1)
+    scope = own_notifications.order(notification_type: 1)
+    @notifications = paginate(scope, per_page: 20)
   end
 
   def update
-    @notification = Notification.find(params[:id])
     if @notification.update(notification_params)
       redirect_to notifications_path, notice: "Notification was successfully updated."
     else
@@ -14,51 +20,48 @@ class NotificationsController < ApplicationController
     end
   end
 
-  def create
-    @notification = Notification.new(notification_params)
-    if @notification.save
-      redirect_to notifications_path, notice: "Notification created successfully."
-    else
-      redirect_to notifications_path, alert: "Failed to create notification."
-    end
-  end
-
   def destroy
-    @notification = Notification.find(params[:id])
     @notification.destroy
     redirect_to notifications_path, notice: "Notification deleted successfully."
   end
 
   def accept
-    notification = Notification.find(params[:id])
-
-    unless notification.receiver_id == current_user.id
-      redirect_to notifications_path, alert: "This notification is not for you."
-      return
-    end
-
-    case notification.notification_type
+    case @notification.notification_type
     when "friend_request"
-      accept_friend_request(notification)
+      accept_friend_request(@notification)
     when "note_share"
-      accept_note_share(notification)
+      accept_note_share(@notification)
     when "collection_share"
-      accept_collection_share(notification)
+      accept_collection_share(@notification)
     else
       redirect_to notifications_path, alert: "Unknown notification type."
     end
   end
 
   def deny
-    notification = Notification.find(params[:id])
-    notification.update(status: "denied")
+    @notification.update(status: "denied")
     redirect_to notifications_path, notice: "Request denied successfully."
   end
 
   private
 
+  def own_notifications
+    Notification.where(receiver_id: current_user.id)
+  end
+
+  def set_notification
+    # .where(...).first, not find_by: Mongoid's find_by raises
+    # DocumentNotFound, which would surface as a 404 instead of this redirect.
+    @notification = own_notifications.where(id: params[:id]).first
+    return if @notification
+
+    redirect_to notifications_path, alert: "That notification is not available."
+  end
+
+  # Only :status is permitted. The old param list let a caller rewrite
+  # sender_id, receiver_id and share_id, which is enough to forge a share.
   def notification_params
-    params.require(:notification).permit(:notification_type, :status, :message, :sender_id, :receiver_id, :share_id)
+    params.require(:notification).permit(:status)
   end
 
   def accept_friend_request(notification)
