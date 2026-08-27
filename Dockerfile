@@ -45,8 +45,15 @@ RUN chmod +x bin/* && \
     sed -i "s/\r$//g" bin/* && \
     sed -i 's/ruby\.exe$/ruby/' bin/*
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompiling assets for production without requiring the real secrets.
+# MONGODB_URI is set for this one command because Mongoid runs ERB over the
+# whole config file before picking an environment, so the production section's
+# ENV.fetch is evaluated even here. Nothing connects during precompile, and the
+# value does not outlive this layer: a deploy missing the real variable still
+# fails loudly at boot, which is the point.
+RUN SECRET_KEY_BASE_DUMMY=1 \
+    MONGODB_URI="mongodb://localhost:27017/precompile_placeholder" \
+    ./bin/rails assets:precompile
 
 
 # Final stage for app image
