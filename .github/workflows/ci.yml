@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: ["**"]
   pull_request:
     branches: [main]
 
@@ -37,9 +37,17 @@ jobs:
         image: mongo:7
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     env:
       RAILS_ENV: test
-      MONGODB_URI: mongodb://localhost:27017/NoteBranch_test
+      # Two distinct databases on purpose: test_helper refuses to run if the
+      # suite would purge the one MONGODB_URI points at.
+      MONGODB_URI: mongodb://localhost:27017/rubynotes_development
+      MONGODB_TEST_URI: mongodb://localhost:27017/rubynotes_test
       SECRET_KEY_BASE: test_secret_key_base_for_ci
     steps:
       - uses: actions/checkout@v4
@@ -47,4 +55,45 @@ jobs:
         with:
           ruby-version: "3.3.0"
           bundler-cache: true
+      # config/mongoid.yml is gitignored: it used to carry a live connection
+      # string. The template holds no secrets and reads the env vars above.
+      - name: Create Mongoid config
+        run: cp config/mongoid.yml.example config/mongoid.yml
       - run: bin/rails test
+
+  system-test:
+    name: System Tests
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      RAILS_ENV: test
+      MONGODB_URI: mongodb://localhost:27017/rubynotes_development
+      MONGODB_TEST_URI: mongodb://localhost:27017/rubynotes_test
+      SECRET_KEY_BASE: test_secret_key_base_for_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.0"
+          bundler-cache: true
+      - uses: browser-actions/setup-chrome@v1
+      - name: Create Mongoid config
+        run: cp config/mongoid.yml.example config/mongoid.yml
+      # Runs headless; see test/application_system_test_case.rb.
+      - run: bin/rails test:system
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-test-screenshots
+          path: tmp/screenshots
+          if-no-files-found: ignore

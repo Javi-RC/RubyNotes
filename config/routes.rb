@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   resources :collections
   resources :notes
 
-  resources :friends, only: [:index, :new] do
+  resources :friends, only: %i[index new] do
     member do
       delete :remove
     end
@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
   # No :create — notifications are only ever raised by the app itself
   # (friend requests, shares). The exposed endpoint let a caller forge one.
-  resources :notifications, only: [:index, :update, :destroy] do
+  resources :notifications, only: %i[index update destroy] do
     member do
       post :accept
       post :deny
@@ -26,7 +26,7 @@ Rails.application.routes.draw do
     resources :collections, only: [:new]
   end
 
-  resources :sessions, only: [:new, :create, :destroy]
+  resources :sessions, only: %i[new create destroy]
   resources :notes_owned, only: [:index]
   resources :collections_owned, only: [:index]
 

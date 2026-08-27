@@ -1539,6 +1539,13 @@ textarea.form-control {
   z-index: $z-toast;
   display: flex;
   flex-direction: column;
+
+  // Inside the app shell the toast would otherwise sit on top of the topbar's
+  // controls for its five visible seconds, swallowing clicks on New Note, the
+  // notification bell and the theme toggle.
+  .page-content & {
+    top: calc(#{$topbar-height} + #{$spacer-4});
+  }
   gap: $spacer-2;
   max-width: 420px;
   width: calc(100% - #{$spacer-8});

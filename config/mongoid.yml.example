@@ -1,16 +1,22 @@
 # Template for config/mongoid.yml, which is gitignored because it used to hold
-# a live Atlas connection string. Copy this file if you ever need to recreate
-# it; the actual credentials belong in .env (see .env.example).
+# a live Atlas connection string. CI copies this file into place; locally, copy
+# it once and let .env supply the values (see .env.example).
+#
+# Mongoid runs ERB over the whole file before selecting an environment, so
+# every section below is evaluated on every boot. Development therefore has a
+# harmless localhost default, while production fails loudly if the variable is
+# missing — which is what you want on a deploy.
 development:
   clients:
     default:
-      uri: <%= ENV.fetch("MONGODB_URI") %>
+      uri: <%= ENV.fetch("MONGODB_URI", "mongodb://localhost:27017/rubynotes_development") %>
 
 test:
   clients:
     default:
-      # Any reachable MongoDB. Never the development cluster: the test suite
-      # calls Mongoid.purge! between tests.
+      # Any reachable MongoDB, but never the development database: the suite
+      # calls Mongoid.purge! between tests. test_helper refuses to run if this
+      # points at the same database as MONGODB_URI.
       uri: <%= ENV.fetch("MONGODB_TEST_URI", "mongodb://localhost:27017/rubynotes_test") %>
 
 production:

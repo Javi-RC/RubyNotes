@@ -17,11 +17,22 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     assert_selector "[aria-label^='Colour theme']", visible: :all
   end
 
+  # Use instead of `visit` for any signed-in page a test then interacts with.
+  # The theme toggle lives in the topbar, so this only applies inside the app
+  # shell, not on the sign-in or landing pages.
+  def visit_ready(url)
+    visit url
+    wait_for_javascript
+  end
+
   def sign_in_as(user, password: "password123")
     visit new_session_url
     fill_in "Username", with: user.name
     fill_in "Password", with: password
     click_on "Sign in"
     assert_selector ".page-title", text: "Welcome"
+    # The dashboard is reached through a Turbo redirect, so gate here too:
+    # a click landing before Turbo attaches is silently dropped.
+    wait_for_javascript
   end
 end

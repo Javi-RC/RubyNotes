@@ -78,6 +78,15 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to notes_owned_index_path
   end
 
+  test "destructive buttons carry a Turbo confirmation" do
+    # Previously data-confirm, which Turbo ignores: every delete went through
+    # without asking. Asserted here rather than in a browser, where driving a
+    # native confirm dialog proved unreliable.
+    get note_url(notes(:one))
+    assert_select "form[data-turbo-confirm]", count: 1
+    assert_select "form[data-confirm]", count: 0
+  end
+
   test "should require login" do
     reset!
     get notes_url

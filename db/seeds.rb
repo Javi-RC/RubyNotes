@@ -12,7 +12,7 @@ user1 = User.find_or_create_by!(name: "alice") do |u|
   u.role = "user"
 end
 
-user2 = User.find_or_create_by!(name: "bob") do |u|
+User.find_or_create_by!(name: "bob") do |u|
   u.password = "password123"
   u.password_confirmation = "password123"
   u.role = "user"
@@ -22,11 +22,11 @@ note1 = Note.find_or_create_by!(title: "Welcome Note", user: admin) do |n|
   n.content = "<p>Welcome to Notes App! This is a sample note.</p>"
 end
 
-note2 = Note.find_or_create_by!(title: "Alice's First Note", user: user1) do |n|
+Note.find_or_create_by!(title: "Alice's First Note", user: user1) do |n|
   n.content = "<p>Hello, I'm Alice and this is my first note.</p>"
 end
 
-collection1 = Collection.find_or_create_by!(title: "Getting Started", user: admin) do |c|
+Collection.find_or_create_by!(title: "Getting Started", user: admin) do |c|
   c.note_ids = [note1.id]
 end
 

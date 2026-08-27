@@ -46,6 +46,16 @@ class NotesOwnedControllerTest < ActionDispatch::IntegrationTest
     assert_select ".content-card__title", { text: /My Note/, count: 0 }
   end
 
+  test "the tabs are real links carrying the tab parameter" do
+    # The tabs used to be buttons driven by a misplaced Stimulus controller,
+    # so the Shared panel was unreachable. They are links now, which is what
+    # makes the state bookmarkable and testable without a browser.
+    get notes_owned_index_url
+
+    assert_select "a.nav-tab[href*=?]", "tab=shared"
+    assert_select "a.nav-tab.nav-tab--active[aria-current=?]", "page", count: 1
+  end
+
   test "an unknown tab falls back to owned rather than erroring" do
     get notes_owned_index_url(tab: "bogus")
     assert_response :success
