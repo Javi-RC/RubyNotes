@@ -15,6 +15,11 @@ config/credentials.yml.enc diff=rails_credentials
 # and fail on the Linux CI runner.
 * text=auto
 
+# Executables must reach Linux with LF: a CRLF shebang is read as an
+# interpreter named "ruby\r" and the script fails to start.
+bin/* text eol=lf
+bin/*.cmd text eol=crlf
+
 # Never touch these.
 *.png binary
 *.jpg binary
