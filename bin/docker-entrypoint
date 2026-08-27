@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
-if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
-  ./bin/rails db:prepare
-fi
+# No database preparation step: this app uses Mongoid, and MongoDB creates the
+# database and its collections on first write. The generated `db:prepare` call
+# that used to live here is an ActiveRecord task, which this app never loads,
+# so it aborted the container on boot.
 
 exec "${@}"

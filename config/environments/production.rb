@@ -41,9 +41,11 @@ Rails.application.configure do
   # config.action_cable.url = "wss://example.com/cable"
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
-  # config.assume_ssl = true
+  # Render (and most PaaS) terminate TLS at their proxy and forward plain HTTP
+  # to the container. Without this, force_ssl below sees an insecure request and
+  # answers every call — including the /up health check, which arrives from
+  # inside the network — with a 301 instead of serving it.
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true

@@ -30,6 +30,13 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+# config/mongoid.yml is gitignored, so it is absent from any build context
+# cloned from the repo. Mongoid's railtie skips a missing config file silently
+# and only fails on the first query, which turns a deploy problem into a 500 on
+# every page. Put the template in place exactly as CI does; it reads all its
+# values from the environment.
+RUN [ -f config/mongoid.yml ] || cp config/mongoid.yml.example config/mongoid.yml
+
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
@@ -54,12 +61,13 @@ RUN apt-get update -qq && \
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /rails /rails
 
-# Run and own only the runtime files as a non-root user for security
+# Run and own only the runtime files as a non-root user for security.
+# `public` is in the list because CarrierWave's :file storage writes uploads
+# under public/uploads, and the app runs as `rails`, not root.
 RUN useradd rails --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
+    chown -R rails:rails db log storage tmp public
 USER rails:rails
 
-# Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
