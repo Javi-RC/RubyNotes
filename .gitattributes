@@ -7,3 +7,19 @@ db/schema.rb linguist-generated
 vendor/* linguist-vendored
 config/credentials/*.yml.enc diff=rails_credentials
 config/credentials.yml.enc diff=rails_credentials
+
+# Store text with LF and let checkout convert per platform. This currently
+# depends on each clone having core.autocrlf set; stating it here makes it
+# hold regardless. It matters because RuboCop's Layout/EndOfLine uses
+# EnforcedStyle: native, so a blob committed with CRLF would pass on Windows
+# and fail on the Linux CI runner.
+* text=auto
+
+# Never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
