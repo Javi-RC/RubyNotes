@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3.0"
+          # Read from .ruby-version so CI cannot drift from the lockfile again.
+          ruby-version: .ruby-version
           bundler-cache: true
       - run: bundle exec rubocop
 
@@ -25,7 +26,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3.0"
+          # Read from .ruby-version so CI cannot drift from the lockfile again.
+          ruby-version: .ruby-version
           bundler-cache: true
       - run: bundle exec brakeman --no-pager
 
@@ -53,7 +55,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3.0"
+          # Read from .ruby-version so CI cannot drift from the lockfile again.
+          ruby-version: .ruby-version
           bundler-cache: true
       # config/mongoid.yml is gitignored: it used to carry a live connection
       # string. The template holds no secrets and reads the env vars above.
@@ -83,7 +86,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3.0"
+          # Read from .ruby-version so CI cannot drift from the lockfile again.
+          ruby-version: .ruby-version
           bundler-cache: true
       - uses: browser-actions/setup-chrome@v1
       - name: Create Mongoid config
