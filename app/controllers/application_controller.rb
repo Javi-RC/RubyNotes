@@ -1,7 +1,18 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user
 
+  # Several controllers still call User.find / Note.find / Collection.find
+  # directly on an id taken from params (friends#send_request, users#see_friend,
+  # notifications#accept_*, and the various set_* before_actions). Mongoid's
+  # find raises DocumentNotFound for a missing or malformed id, which without
+  # this would surface as a 500 instead of a normal "that's gone" redirect.
+  rescue_from Mongoid::Errors::DocumentNotFound, with: :render_not_found
+
   private
+
+  def render_not_found
+    redirect_to current_user ? home_path : root_path, alert: "That record could not be found."
+  end
 
   def current_user
     return unless session[:user_id]

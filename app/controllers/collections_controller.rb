@@ -44,19 +44,18 @@ class CollectionsController < ApplicationController
 
   def update
     note_ids = params[:collection][:note_ids] || []
-    old_shares_ids = @collection.share_ids || []
-    new_shares_ids = params[:collection][:share_ids]&.map { |id| BSON::ObjectId(id) } || []
+    new_share_ids = params[:collection][:share_ids]&.map { |id| BSON::ObjectId(id) } || []
 
-    create_collection_share_notifications(new_shares_ids, old_shares_ids)
-    revoke_collection_share_notifications(old_shares_ids, new_shares_ids)
+    share_update = Sharing::ResourceShareUpdate.new(
+      resource: @collection, resource_type: "collection", sender: current_user, submitted_share_ids: new_share_ids
+    ).call { |friend| strip_friend_from_collection_notes(friend) }
 
-    sharecontent = old_shares_ids.map { |sid| User.find(sid) }
-    sharecontent << User.find(@collection.user_id) if @collection.user_id != current_user.id
+    shared_with = share_update.share_ids.map { |id| User.find(id) }
+    shared_with << User.find(@collection.user_id) if @collection.user_id != current_user.id
 
-    propagate_shares_to_notes(note_ids, sharecontent)
-    remove_shares_from_notes(note_ids, sharecontent)
+    Sharing::CollectionNoteSync.new(collection: @collection, note_ids: note_ids, shared_with: shared_with).call
 
-    if @collection.update(collection_params.merge(note_ids: note_ids, share_ids: old_shares_ids))
+    if @collection.update(collection_params.merge(note_ids: note_ids, share_ids: share_update.share_ids))
       redirect_to notes_owned_index_path, notice: "Collection was successfully updated."
     else
       render :edit, status: :unprocessable_entity
@@ -78,69 +77,12 @@ class CollectionsController < ApplicationController
     params.require(:collection).permit(:title, :user_id, note_ids: [], share_ids: [])
   end
 
-  def create_collection_share_notifications(new_shares_ids, old_shares_ids)
-    new_shares_ids.each do |share_id|
-      next if old_shares_ids.include?(share_id)
-
-      friend = User.find(share_id)
-      Notification.create!(
-        notification_type: "collection_share",
-        status: "pending",
-        message: "#{current_user.name} wants to share the collection #{@collection.title} with you.",
-        sender_id: current_user.id,
-        receiver_id: friend.id,
-        share_id: @collection.id,
-        user: current_user
-      )
-    end
-  end
-
-  def revoke_collection_share_notifications(old_shares_ids, new_shares_ids)
-    old_shares_ids.each do |share_id|
-      next if new_shares_ids.include?(share_id)
-
-      friend = User.find(share_id)
-      Notification.create!(
-        notification_type: "collection_share",
-        status: "revoked",
-        message: "#{current_user.name} has revoked the sharing of the collection #{@collection.title} with you.",
-        sender_id: current_user.id,
-        receiver_id: friend.id,
-        share_id: @collection.id,
-        user: current_user
-      )
-
-      @collection.notes.each do |note|
-        note.shares.delete(friend)
-        note.save
-      end
-
-      old_shares_ids.delete(share_id)
-    end
-  end
-
-  def propagate_shares_to_notes(note_ids, sharecontent)
-    note_ids.each do |note_id|
-      note = Note.find(note_id)
-      next if @collection.notes.include?(note)
-
-      sharecontent.each do |share|
-        next if note.user_id == share.id
-
-        note.shares.push(share)
-        note.save
-      end
-    end
-  end
-
-  def remove_shares_from_notes(note_ids, sharecontent)
+  # A friend dropped from the collection's own share list loses their share
+  # on every note inside it too, not just future notes added to it.
+  def strip_friend_from_collection_notes(friend)
     @collection.notes.each do |note|
-      next if note_ids.map { |id| BSON::ObjectId(id) }.include?(note.id)
-
-      sharecontent.each do |share|
-        note.shares.delete(share)
-        note.save
-      end
+      note.shares.delete(friend)
+      note.save
     end
   end
 end

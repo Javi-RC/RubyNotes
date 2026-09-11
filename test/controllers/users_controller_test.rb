@@ -80,6 +80,13 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path
   end
 
+  test "viewing a nonexistent friend's profile redirects instead of erroring" do
+    sign_in users(:one)
+    get see_friend_url("000000000000000000000000")
+    assert_redirected_to home_path
+    assert_equal "That record could not be found.", flash[:alert]
+  end
+
   test "a user can delete their own account" do
     sign_in users(:one)
     assert_difference("User.count", -1) do

@@ -22,6 +22,12 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path
   end
 
+  test "sending a request to a nonexistent user redirects instead of erroring" do
+    post send_request_path("000000000000000000000000")
+    assert_redirected_to home_path
+    assert_equal "That record could not be found.", flash[:alert]
+  end
+
   test "should require login" do
     reset!
     get friends_url

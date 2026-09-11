@@ -53,7 +53,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    transfer_user_data(@user)
+    Sharing::AccountTransfer.call(@user)
     @user.destroy
     if current_user == @user
       reset_session
@@ -105,49 +105,5 @@ class UsersController < ApplicationController
 
     role = params.dig(:user, :role)
     user.role = role if role.present?
-  end
-
-  def transfer_user_data(user)
-    user.notes.each do |note|
-      if note.shares.any?
-        first_sharer = User.find(note.share_ids.first)
-        note.user = first_sharer
-        note.shares.delete(first_sharer)
-        note.save
-      else
-        note.destroy
-      end
-    end
-
-    user.collections.each do |collection|
-      if collection.shares.any?
-        first_sharer = User.find(collection.share_ids.first)
-        collection.user = first_sharer
-        collection.shares.delete(first_sharer)
-        collection.save
-      else
-        collection.destroy
-      end
-    end
-
-    user.friends.each do |friend|
-      friend.notes.each do |note|
-        note.shares.delete(user) if note.share_ids.include?(user.id)
-      end
-      friend.collections.each do |collection|
-        next unless collection.share_ids.include?(user.id)
-
-        collection.notes.each do |note|
-          note.collections.delete(collection) if note.user_id == user.id
-        end
-        collection.shares.delete(user)
-      end
-      user.friend_ids.delete(friend.id)
-      friend.friend_ids.delete(user.id)
-      user.save
-      friend.save
-    end
-
-    Notification.where(:receiver_id.in => [user.id]).or(:sender_id.in => [user.id]).each(&:destroy)
   end
 end
