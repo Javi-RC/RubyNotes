@@ -10,4 +10,10 @@ class Collection
 
   validates :title, presence: true
   validates :user, presence: true
+
+  # Mirrors Note's indexes: same owned/shared scopes and search pattern in
+  # CollectionsOwnedController and ApplicationController.
+  index({ user_id: 1 })
+  index({ share_ids: 1 })
+  index({ title: 1 })
 end

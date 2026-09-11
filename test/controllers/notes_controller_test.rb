@@ -78,6 +78,12 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to notes_owned_index_path
   end
 
+  test "visiting a nonexistent note redirects instead of erroring" do
+    get note_url("000000000000000000000000")
+    assert_redirected_to home_path
+    assert_equal "That record could not be found.", flash[:alert]
+  end
+
   test "destructive buttons carry a Turbo confirmation" do
     # Previously data-confirm, which Turbo ignores: every delete went through
     # without asking. Asserted here rather than in a browser, where driving a

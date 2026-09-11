@@ -16,6 +16,13 @@ class User
   has_many :notes
   has_many :collections
 
+  # name is already validated unique above; the index makes that hold under
+  # concurrent signups instead of only after the fact, and backs the login
+  # lookup (SessionsController#create) and the name search (UsersController,
+  # FriendsController).
+  index({ name: 1 }, { unique: true })
+  index({ friend_ids: 1 })
+
   def admin?
     role == "admin"
   end

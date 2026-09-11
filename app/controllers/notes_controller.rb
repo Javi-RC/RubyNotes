@@ -43,13 +43,13 @@ class NotesController < ApplicationController
   end
 
   def update
-    old_shares_ids = @note.share_ids || []
-    new_shares_ids = params[:note][:share_ids]&.map { |id| BSON::ObjectId(id) } || []
+    new_share_ids = params[:note][:share_ids]&.map { |id| BSON::ObjectId(id) } || []
 
-    create_share_notifications(new_shares_ids, old_shares_ids)
-    create_revoke_notifications(old_shares_ids, new_shares_ids)
+    share_update = Sharing::ResourceShareUpdate.new(
+      resource: @note, resource_type: "note", sender: current_user, submitted_share_ids: new_share_ids
+    ).call
 
-    if @note.update(note_params.merge(share_ids: old_shares_ids))
+    if @note.update(note_params.merge(share_ids: share_update.share_ids))
       redirect_to notes_owned_index_path, notice: "Note was successfully updated."
     else
       render :edit, status: :unprocessable_entity
@@ -69,40 +69,5 @@ class NotesController < ApplicationController
 
   def note_params
     params.require(:note).permit(:title, :content, :user_id, collection_ids: [], share_ids: [])
-  end
-
-  def create_share_notifications(new_shares_ids, old_shares_ids)
-    new_shares_ids.each do |share_id|
-      next if old_shares_ids.include?(share_id)
-
-      friend = User.find(share_id)
-      Notification.create!(
-        notification_type: "note_share",
-        status: "pending",
-        message: "#{current_user.name} wants to share the note #{@note.title} with you.",
-        sender_id: current_user.id,
-        receiver_id: friend.id,
-        share_id: @note.id,
-        user: current_user
-      )
-    end
-  end
-
-  def create_revoke_notifications(old_shares_ids, new_shares_ids)
-    old_shares_ids.each do |share_id|
-      next if new_shares_ids.include?(share_id)
-
-      friend = User.find(share_id)
-      Notification.create!(
-        notification_type: "note_share",
-        status: "revoked",
-        message: "#{current_user.name} has removed you from the note #{@note.title}.",
-        sender_id: current_user.id,
-        receiver_id: friend.id,
-        share_id: @note.id,
-        user: current_user
-      )
-      old_shares_ids.delete(share_id)
-    end
   end
 end

@@ -15,4 +15,9 @@ class Notification
 
   TYPES = %w[friend_request friendship_response note_share note_accepted collection_share collection_accepted].freeze
   STATUSES = %w[pending accepted denied read unread revoked].freeze
+
+  # NotificationsController's #index and #own_notifications filter and sort
+  # by exactly these fields on every request.
+  index({ receiver_id: 1, notification_type: 1 })
+  index({ sender_id: 1 })
 end

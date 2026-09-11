@@ -22,7 +22,7 @@ class FriendsController < ApplicationController
       return
     end
 
-    remove_friendship(friend)
+    Sharing::FriendshipTeardown.call(current_user, friend)
     redirect_to friends_url, notice: "Friend removed successfully."
   end
 
@@ -48,40 +48,5 @@ class FriendsController < ApplicationController
     else
       redirect_to home_path, alert: "Failed to send friend request."
     end
-  end
-
-  private
-
-  def remove_friendship(friend)
-    current_user.notes.each do |note|
-      note.shares.delete(friend) if note.share_ids.include?(friend.id)
-    end
-
-    current_user.collections.each do |collection|
-      next unless collection.share_ids.include?(friend.id)
-
-      collection.notes.each do |note|
-        note.collections.delete(collection) if note.user_id == friend.id
-      end
-      collection.shares.delete(friend)
-    end
-
-    friend.notes.each do |note|
-      note.shares.delete(current_user) if note.share_ids.include?(current_user.id)
-    end
-
-    friend.collections.each do |collection|
-      next unless collection.share_ids.include?(current_user.id)
-
-      collection.notes.each do |note|
-        note.collections.delete(collection) if note.user_id == current_user.id
-      end
-      collection.shares.delete(current_user)
-    end
-
-    current_user.friend_ids.delete(friend.id)
-    friend.friend_ids.delete(current_user.id)
-    current_user.save
-    friend.save
   end
 end
