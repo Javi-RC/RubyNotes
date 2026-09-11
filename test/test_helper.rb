@@ -74,6 +74,12 @@ module MongoidFixtures
   end
 
   def load_mongoid_fixtures
+    # Mongoid.purge! (see the teardown below) drops every collection, indexes
+    # included, so they need recreating before each test — otherwise only the
+    # first test in a run would exercise indexed queries the way production
+    # does.
+    Mongoid::Tasks::Database.create_indexes
+
     @fixtures = { users: {}, notes: {}, collections: {}, notifications: {} }
 
     read_fixture_file("users").each do |label, attrs|

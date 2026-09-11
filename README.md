@@ -25,8 +25,11 @@ cd WebSystemsLab
 bundle install
 cp .env.example .env
 # Edit .env with your MongoDB URI
+bin/rails db:mongoid:create_indexes
 bin/rails server
 ```
+
+Models declare their indexes (`index({...})` in `app/models/*.rb`), but Mongoid never creates them on the server on its own — `db:mongoid:create_indexes` does that. The Docker image runs it automatically on boot (see `bin/docker-entrypoint`); running the app outside Docker means running it yourself, once per environment, and again after adding or changing an index.
 
 ## Docker Setup
 

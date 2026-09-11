@@ -4,5 +4,13 @@
 # database and its collections on first write. The generated `db:prepare` call
 # that used to live here is an ActiveRecord task, which this app never loads,
 # so it aborted the container on boot.
+#
+# Indexes are a separate concern: `index({...})` in a Mongoid model only
+# declares an index, it never creates it against the server. Do that here,
+# once, before the server starts, rather than leaving every deploy to depend
+# on someone remembering to run `db:mongoid:create_indexes` by hand.
+case "$*" in
+  *server*) ./bin/rails db:mongoid:create_indexes ;;
+esac
 
 exec "${@}"
